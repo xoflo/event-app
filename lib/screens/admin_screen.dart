@@ -17,7 +17,7 @@ class _AdminScreenState extends State<AdminScreen> {
       appBar: AppBar(
         backgroundColor: secondaryColor,
         centerTitle: true,
-        title: Text("Admin Screen", style: TextStyle(color: tertiaryColor, fontWeight: FontWeight.w600)),
+        title: Text("Admin Screen", style: TextStyle(color: inverseColor, fontWeight: FontWeight.w700)),
       ),
       body: Padding(
         padding: EdgeInsets.all(20),
@@ -27,7 +27,9 @@ class _AdminScreenState extends State<AdminScreen> {
               children: [
                 addEventCard()
               ],
-            )
+            ),
+            SizedBox(height: 15),
+            eventList()
           ],
         ),
       ),
@@ -74,6 +76,21 @@ class _AdminScreenState extends State<AdminScreen> {
             },
           );
         }
+    );
+  }
+
+  eventList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Event List", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 25, color: inverseColor)),
+        Container(
+          height: 400,
+          child: ListView.builder(itemBuilder: (context, i) {
+            return ListTile();
+          }),
+        ),
+      ],
     );
   }
 }
