@@ -1,7 +1,9 @@
+import 'package:barcode_widget/barcode_widget.dart';
 import 'package:event_app/const.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:screenshot/screenshot.dart';
 
 class EventScreen extends StatefulWidget {
   const EventScreen({super.key});
@@ -37,7 +39,6 @@ class _EventScreenState extends State<EventScreen> {
                 child: Row(
                   children: [
                     tappableCard("Create Poll", "Let Participants Vote", Icons.poll, createPollDialog),
-                    tappableCard("Event QR", "Share with Participants", Icons.qr_code, () => print("QR")),
                   ],
                 ),
               ),
@@ -73,6 +74,35 @@ class _EventScreenState extends State<EventScreen> {
         ),
       ],
     );
+  }
+
+  qrDialog() {
+    ScreenshotController controller = ScreenshotController();
+
+    showDialog(context: context, builder: (_) => AlertDialog(
+      title: Text("Event QR"),
+      backgroundColor: backgroundColor,
+
+      content: Screenshot(
+        controller: controller,
+        child: Container(
+          height: 400,
+          width: 300,
+          child: Column(
+            children: [
+              Text("Event Name", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700)),
+              SizedBox(height: 10),
+              BarcodeWidget(data: 'Event', barcode: Barcode.qrCode()),
+              SizedBox(height: 10),
+              Text("Event Pass", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700)),
+              SizedBox(height: 5),
+              Text("SCAN TO ENTER", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+
+            ],
+          ),
+        ),
+      ),
+    ));
   }
 
   createPollDialog() {

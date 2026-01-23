@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:event_app/const.dart';
 import 'package:event_app/firebase_options.dart';
 import 'package:event_app/screens/admin/admin_screen.dart';
+import 'package:event_app/screens/client/client_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -43,7 +44,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'DM Sans',
         useMaterial3: true,
       ),
-      home: const AdminScreen(),
+      home: const ClientScreen(),
     );
   }
 }
