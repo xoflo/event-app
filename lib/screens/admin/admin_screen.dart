@@ -40,45 +40,7 @@ class _AdminScreenState extends State<AdminScreen> {
 
 
   addEventCard(){
-    return Builder(
-        builder: (context) {
-          var color = tertiaryColor;
-          return StatefulBuilder(
-            builder: (BuildContext context, void Function(void Function()) setState) {
-              return InkWell(
-                onHover: (value) => setState(() {
-                  color = value ? primaryColor : tertiaryColor;
-                }),
-                child: Card(
-                  color: color,
-                  child: Container(
-                    padding: EdgeInsets.all(20),
-                    height: 100,
-                    width: 330,
-                    child: Row(
-                      children: [
-                        Icon(Icons.event_note, color: backgroundColor, size: 50),
-                        SizedBox(width: 10),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Add Event", style: TextStyle(color: backgroundColor, fontSize: 22, fontWeight: FontWeight.w700)),
-                            Text("Allow Participants, Make Actions", style: TextStyle(color: backgroundColor))
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                onTap: () {
-                  print("Add Event");
-                },
-              );
-            },
-          );
-        }
-    );
+    return tappableCard("Add Event", "Create a new event", Icons.event_note, () {print("Add Event");});
   }
 
   eventList() {

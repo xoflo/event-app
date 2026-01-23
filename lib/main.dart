@@ -25,6 +25,12 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Event App',
       theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+            primary: primaryColor,
+            secondary: secondaryColor,
+            surface: backgroundColor,
+            inversePrimary: inverseColor,
+            seedColor: primaryColor),
         fontFamily: 'DM Sans',
         useMaterial3: true,
       ),
