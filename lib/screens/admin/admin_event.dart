@@ -1,4 +1,5 @@
 import 'package:event_app/const.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class EventScreen extends StatefulWidget {
@@ -25,12 +26,18 @@ class _EventScreenState extends State<EventScreen> {
           children: [
             Text("Event Name", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700),),
             Text("Status: Ongoing"),
+            Text("Participants: 92"),
             Padding(
               padding: const EdgeInsets.all(15.0),
-              child: Row(
-                children: [
-                  tappableCard("Create Poll", "Let Participants Vote", Icons.poll, createPollDialog)
-                ],
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    tappableCard("Create Poll", "Let Participants Vote", Icons.poll, createPollDialog),
+
+                    tappableCard("Event QR", "Share with Participants", Icons.qr_code, () => print("QR")),
+                  ],
+                ),
               ),
             ),
             actionList()
@@ -77,9 +84,12 @@ class _EventScreenState extends State<EventScreen> {
           builder: (BuildContext context, void Function(void Function()) setState) {
             return Column(
               children: [
-                TextField(
-                  decoration: InputDecoration(
-                      labelText: "Poll Name"
+                Padding(
+                  padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  child: TextField(
+                    decoration: InputDecoration(
+                        labelText: "Poll Name"
+                    ),
                   ),
                 ),
                 Builder(
@@ -94,9 +104,11 @@ class _EventScreenState extends State<EventScreen> {
                           ),
                         ),
                         trailing: IconButton(onPressed: () {
-                          setState(() {
-                            options.add(optionController.text);
-                          });
+                          if (optionController.text.isNotEmpty) {
+                            setState(() {
+                              options.add(optionController.text);
+                            });
+                          }
                         }, icon: Icon(Icons.add)),
                       );
                     }
