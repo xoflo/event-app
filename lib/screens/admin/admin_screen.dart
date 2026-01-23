@@ -96,6 +96,7 @@ class _AdminScreenState extends State<AdminScreen> {
               return ListTile(
                 title: Text("Event $i: Event Name"),
                 subtitle: Text("Status: Ongoing"),
+                trailing: IconButton(onPressed: () {}, icon: Icon(Icons.delete)),
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (_) => EventScreen()));
                 },

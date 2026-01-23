@@ -33,9 +33,11 @@ class _EventScreenState extends State<EventScreen> {
 
 
   titleWidget() {
-    return [
-      Text("Event Name", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700),),
-      Text("Status: Ongoing")
-    ];
+    return Column(
+      children: [
+        Text("Event Name", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700),),
+        Text("Status: Ongoing")
+      ],
+    );
   }
 }
