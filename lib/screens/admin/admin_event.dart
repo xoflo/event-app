@@ -34,7 +34,6 @@ class _EventScreenState extends State<EventScreen> {
                 child: Row(
                   children: [
                     tappableCard("Create Poll", "Let Participants Vote", Icons.poll, createPollDialog),
-
                     tappableCard("Event QR", "Share with Participants", Icons.qr_code, () => print("QR")),
                   ],
                 ),
@@ -63,6 +62,9 @@ class _EventScreenState extends State<EventScreen> {
               itemBuilder: (context, i) {
             return ListTile(
               title: Text("Action $i"),
+              onTap: () {
+
+              },
             );
           }),
         ),
