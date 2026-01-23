@@ -56,7 +56,7 @@ class _AdminScreenState extends State<AdminScreen> {
                 itemCount: 1,
                 itemBuilder: (context, i) {
               return ListTile(
-                title: Text("Event $i: Event Name"),
+                title: Text("Event ${i+1}: Event Name"),
                 subtitle: Text("Status: Ongoing"),
                 trailing: IconButton(onPressed: () {}, icon: Icon(Icons.delete)),
                 onTap: () {

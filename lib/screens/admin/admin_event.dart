@@ -1,6 +1,7 @@
 import 'package:event_app/const.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class EventScreen extends StatefulWidget {
   const EventScreen({super.key});
@@ -26,6 +27,8 @@ class _EventScreenState extends State<EventScreen> {
           children: [
             Text("Event Name", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700),),
             Text("Status: Ongoing"),
+            Text("${DateFormat().add_yMMMMd().format(DateTime.now())} ${DateFormat().add_jm().format(DateTime.now())}"),
+
             Text("Participants: 92"),
             Padding(
               padding: const EdgeInsets.all(15.0),
@@ -61,7 +64,7 @@ class _EventScreenState extends State<EventScreen> {
               itemCount: 1,
               itemBuilder: (context, i) {
             return ListTile(
-              title: Text("Action $i"),
+              title: Text("Action Name"),
               onTap: () {
 
               },
@@ -87,7 +90,7 @@ class _EventScreenState extends State<EventScreen> {
             return Column(
               children: [
                 Padding(
-                  padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  padding: EdgeInsets.fromLTRB(12.5, 0, 12.5, 0),
                   child: TextField(
                     decoration: InputDecoration(
                         labelText: "Poll Name"
