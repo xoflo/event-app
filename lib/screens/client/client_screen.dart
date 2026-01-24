@@ -195,7 +195,26 @@ class _ClientScreenState extends State<ClientScreen> {
                       SizedBox(height: 15),
                       Text("${index.isEmpty ? "No Choice" : "Option ${index.first}"}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                       index.isEmpty ? SizedBox() : IconButton(
-                        onPressed: () {  },
+                        onPressed: () {
+                          showDialog(context: context, builder: (_) => AlertDialog(
+                            backgroundColor: backgroundColor,
+                            content: Container(
+                              height: 150,
+                              width: 150,
+                              child: Column(
+                                children: [
+                                  Text("Your Selected:", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                                  SizedBox(height: 10),
+                                  Text("Option ${index.first}", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700)),
+                                  SizedBox(height: 10),
+                                  Text("Submitting is final and cannot be undone", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                                  ElevatedButton(onPressed: () {}, child: Text("Submit"))
+
+                                ],
+                              ),
+                            ),
+                          ));
+                        },
                         icon: Icon(
                             color: primaryColor,
                             Icons.check))
