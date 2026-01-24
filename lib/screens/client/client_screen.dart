@@ -142,7 +142,6 @@ class _ClientScreenState extends State<ClientScreen> {
 
     if (i == 2) {
       return Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text("Poll: President", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: inverseColor)),
           SizedBox(height: 10),
@@ -235,6 +234,7 @@ class _ClientScreenState extends State<ClientScreen> {
                             Icons.check)),
 
                       finalChoice != null ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text("This is saved and recorded", style: TextStyle(color: primaryColor, fontSize: 20, fontStyle: FontStyle.italic)),
                           SizedBox(width: 10),
