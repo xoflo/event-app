@@ -109,7 +109,7 @@ class _ClientScreenState extends State<ClientScreen> {
     return Card(
       color: secondaryColor,
       child: Container(
-        height: 500,
+        height: 520,
         width: 400,
         child: Padding(
             padding: EdgeInsets.all(20),
@@ -142,6 +142,7 @@ class _ClientScreenState extends State<ClientScreen> {
 
     if (i == 2) {
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text("Poll: President", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: inverseColor)),
           SizedBox(height: 10),
@@ -151,18 +152,20 @@ class _ClientScreenState extends State<ClientScreen> {
           Builder(
             builder: (context) {
 
+              String? finalChoice;
               List<int> index = [];
 
               return StatefulBuilder(
                 builder: (BuildContext context, void Function(void Function()) setState) {
                   return Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Container(
                         height: 160,
                         child: Builder(
                             builder: (context) {
 
-                              return Material(
+                              return finalChoice != null ? Text("Your Choice:\nOption $finalChoice", textAlign: TextAlign.center, style: TextStyle(fontSize: 40, overflow: TextOverflow.ellipsis ,fontWeight: FontWeight.w700)) : Material(
                                 color: secondaryColor,
                                 child: ListView.builder(
                                     itemCount: 8,
@@ -193,7 +196,7 @@ class _ClientScreenState extends State<ClientScreen> {
                       ),
 
                       SizedBox(height: 15),
-                      Text("${index.isEmpty ? "No Choice" : "Option ${index.first}"}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                      Text("${index.isEmpty ? finalChoice == null ? "No Choice" : "" : "Option ${index.first}"}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                       index.isEmpty ? SizedBox() : IconButton(
                         onPressed: () {
                           showDialog(context: context, builder: (_) => AlertDialog(
@@ -205,10 +208,22 @@ class _ClientScreenState extends State<ClientScreen> {
                                 children: [
                                   Text("Your Selected:", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                                   SizedBox(height: 10),
-                                  Text("Option ${index.first}", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700)),
+                                  Text("Option ${index.first}", overflow: TextOverflow.ellipsis ,style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700)),
                                   SizedBox(height: 10),
-                                  Text("Submitting is final and cannot be undone", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-                                  ElevatedButton(onPressed: () {}, child: Text("Submit"))
+                                  Text("THIS ACTION CANNOT BE UNDONE", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.grey)),
+                                  SizedBox(height: 15),
+                                  ElevatedButton(
+                                      style: ButtonStyle(
+                                          foregroundColor: WidgetStateProperty.all(inverseColor),
+                                          backgroundColor: WidgetStateProperty.all(primaryColor)),
+
+                                      onPressed: () {
+                                    Navigator.pop(context);
+                                    setState(() {
+                                      finalChoice = index.first.toString();
+                                      index.clear();
+                                    });
+                                  }, child: Text("Submit"))
 
                                 ],
                               ),
@@ -217,7 +232,15 @@ class _ClientScreenState extends State<ClientScreen> {
                         },
                         icon: Icon(
                             color: primaryColor,
-                            Icons.check))
+                            Icons.check)),
+
+                      finalChoice != null ? Row(
+                        children: [
+                          Text("This is saved and recorded", style: TextStyle(color: primaryColor, fontSize: 20, fontStyle: FontStyle.italic)),
+                          SizedBox(width: 10),
+                          Icon(Icons.check_circle, color: primaryColor)
+                        ],
+                      ) : Text("")
 
                     ],
                   );
