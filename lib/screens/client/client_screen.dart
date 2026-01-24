@@ -26,14 +26,17 @@ class _ClientScreenState extends State<ClientScreen> {
         backgroundColor: primaryColor,
         title: Text("Event App", style: TextStyle(color: inverseColor, fontWeight: FontWeight.w800, fontSize: 24)),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            actionRow(),
-            SizedBox(height: 10),
-            eventList()
-          ],
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: Column(
+            children: [
+              actionRow(),
+              SizedBox(height: 10),
+              eventList()
+            ],
+          ),
         ),
       ),
     );
@@ -92,16 +95,13 @@ class _ClientScreenState extends State<ClientScreen> {
   }
 
   eventList() {
-    return Padding(
-      padding: const EdgeInsets.all(15.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Active Event", style: TextStyle(color: inverseColor, fontSize: 24, fontWeight: FontWeight.w700),),
-          SizedBox(height: 10,),
-          eventCard()
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Active Event", style: TextStyle(color: inverseColor, fontSize: 24, fontWeight: FontWeight.w700),),
+        SizedBox(height: 10,),
+        eventCard()
+      ],
     );
   }
 
@@ -109,19 +109,18 @@ class _ClientScreenState extends State<ClientScreen> {
     return Card(
       color: secondaryColor,
       child: Container(
-        height: 400,
+        height: 500,
         width: 400,
         child: Padding(
             padding: EdgeInsets.all(20),
                 child: Column(
             children: [
-              Text("Event Name", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700)),
+              Text("Elections 2025", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: inverseColor)),
+              Text("Date: 12/12/2023  |  Participants: 888", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: inverseColor)),
               SizedBox(height: 10),
-              Row(
-                children: [
-                  Text("Current Activity", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-                ],
-              ),
+              Text("Current Activity", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: inverseColor)),
+              SizedBox(height: 10),
+              activityHandler(2)
 
 
             ],
@@ -131,9 +130,112 @@ class _ClientScreenState extends State<ClientScreen> {
     );
   }
 
-  activityHandler() {
 
+  activityHandler(int i) {
+
+    if (i == 1) {
+      return Container(
+          height: 250,
+          child: Center(
+              child: Text("No Activity at the moment")));
+    }
+
+    if (i == 2) {
+      return Column(
+        children: [
+          Text("Poll: President", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: inverseColor)),
+          SizedBox(height: 10),
+          Text("1:59", style: TextStyle(fontSize: 30)),
+          Text("Time Remaining", style: TextStyle(fontSize: 15)),
+          SizedBox(height: 10),
+          Builder(
+            builder: (context) {
+
+              List<int> index = [];
+
+              return StatefulBuilder(
+                builder: (BuildContext context, void Function(void Function()) setState) {
+                  return Column(
+                    children: [
+                      Container(
+                        height: 160,
+                        child: Builder(
+                            builder: (context) {
+
+                              return Material(
+                                color: secondaryColor,
+                                child: ListView.builder(
+                                    itemCount: 8,
+                                    itemBuilder: (context, i) {
+                                      return Padding(
+                                        padding: const EdgeInsets.fromLTRB(0, 1, 0, 1),
+                                        child: ListTile(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12)
+                                          ),
+                                          selected: index.contains(i),
+                                          selectedTileColor: primaryColor,
+                                
+                                          hoverColor: primaryColor,
+                                          title: Text("Option $i", style: TextStyle(color: index.contains(i) ? inverseColor : inverseColor)),
+                                          onTap: () {
+                                            index.clear();
+                                            setState(() {
+                                              index.add(i);
+                                            });
+                                          },
+                                        ),
+                                      );
+                                    }),
+                              );
+                            }
+                        ),
+                      ),
+
+                      SizedBox(height: 15),
+                      Text("${index.isEmpty ? "No Choice" : "Option ${index.first}"}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                      index.isEmpty ? SizedBox() : IconButton(
+                        onPressed: () {  },
+                        icon: Icon(
+                            color: primaryColor,
+                            Icons.check))
+
+                    ],
+                  );
+                },
+
+              );
+            }
+          ),
+        ],
+      );
+    }
   }
 
+
+  noEventCard() {
+    return Card(
+      color: secondaryColor,
+      child: Container(
+        height: 300,
+        width: 400,
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(Icons.event_busy, size: 60),
+              SizedBox(height: 10),
+              Text("No Active Event", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: inverseColor)),
+              Text("Join an Event using your QR", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: inverseColor))
+
+
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
 }
