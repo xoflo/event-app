@@ -7,10 +7,15 @@ import 'package:event_app/screens/admin/admin_screen.dart';
 import 'package:event_app/screens/client/client_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
+
+  await Hive.initFlutter();
+  await Hive.openBox('deviceBox');
 
   await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform
