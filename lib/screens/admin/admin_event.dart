@@ -2,6 +2,7 @@ import 'package:barcode_widget/barcode_widget.dart';
 import 'package:event_app/const.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:screenshot/screenshot.dart';
 
@@ -105,8 +106,13 @@ class _EventScreenState extends State<EventScreen> {
     ));
   }
 
+
   createPollDialog() {
 
+    TextEditingController pollName = TextEditingController();
+    TextEditingController hours = TextEditingController();
+    TextEditingController minutes = TextEditingController();
+    TextEditingController seconds = TextEditingController();
     List<String> options = [];
 
     showDialog(context: context, builder: (_) => AlertDialog(
@@ -122,9 +128,32 @@ class _EventScreenState extends State<EventScreen> {
                 Padding(
                   padding: EdgeInsets.fromLTRB(12.5, 0, 12.5, 0),
                   child: TextField(
+                    controller: pollName,
                     decoration: InputDecoration(
                         labelText: "Poll Name"
                     ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(12.5, 0, 12.5, 0),
+                  child: Row(
+                    spacing: 10,
+                    children: [
+                      Container(
+                          height: 50,
+                          width: 80,
+                          child: TextFieldNumber("Hours", hours)),
+
+                      Container(
+                          height: 50,
+                          width: 80,
+                          child: TextFieldNumber("Minutes", minutes)),
+
+                      Container(
+                          height: 50,
+                          width: 80,
+                          child: TextFieldNumber("Seconds", seconds)),
+                    ],
                   ),
                 ),
                 Builder(
@@ -175,7 +204,21 @@ class _EventScreenState extends State<EventScreen> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () {}, child: Text("Save Poll"))
+        TextButton(onPressed: () {
+
+          final hoursInSeconds = int.parse(hours.text.isEmpty ? "0" : hours.text);
+          final minutesInSeconds = int.parse(minutes.text.isEmpty ? "0" : minutes.text);
+          final secondsInSeconds = int.parse(seconds.text.isEmpty ? "0" : seconds.text);
+
+          final totalSeconds = hoursInSeconds * 3600 + minutesInSeconds * 60 + secondsInSeconds;
+
+          print(pollName.text);
+          print(totalSeconds);
+          print(options);
+
+          Navigator.pop(context);
+
+        }, child: Text("Save Poll"))
       ],
     ));
   }
