@@ -1,8 +1,9 @@
 import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ntp_dart/models/accurate_time.dart';
+import 'package:ntp_dart/models/libraries/ntp_io.dart';
 
 final primaryColor = Color(0xffeb5e28);
 final secondaryColor = Color(0xffccc5b9);
@@ -10,6 +11,12 @@ final backgroundColor = Color(0xfffffcf2);
 final tertiaryColor = Color(0xff403d39);
 final inverseColor = Color(0xff252422);
 
+
+Future<DateTime> getNetworkTime() async {
+  final nowUtc = AccurateTime.nowSync();
+  print(nowUtc);
+  return nowUtc;
+}
 
 TextFieldNumber(String label, TextEditingController? controller) {
   return TextField(
@@ -39,7 +46,7 @@ tappableCard(
             child: Container(
               padding: EdgeInsets.all(20),
               height: 100,
-              width: 280,
+              width: 250,
               child: Row(
                 children: [
                   Icon(icon, color: backgroundColor, size: 50),

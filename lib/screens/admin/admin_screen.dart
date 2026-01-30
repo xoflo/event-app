@@ -1,6 +1,6 @@
 import 'package:event_app/const.dart';
+import 'package:event_app/screens/admin/admin_action.dart';
 import 'package:flutter/material.dart';
-
 import 'admin_event.dart';
 
 class AdminScreen extends StatefulWidget {
@@ -12,7 +12,11 @@ class AdminScreen extends StatefulWidget {
 
 class _AdminScreenState extends State<AdminScreen> {
   @override
+
+
   Widget build(BuildContext context) {
+
+
     return Scaffold(
       backgroundColor: backgroundColor,
 
@@ -27,11 +31,7 @@ class _AdminScreenState extends State<AdminScreen> {
           padding: EdgeInsets.all(20),
           child: Column(
             children: [
-              Row(
-                children: [
-                  addEventCard()
-                ],
-              ),
+              actions(),
               SizedBox(height: 15),
               eventList()
             ],
@@ -41,6 +41,14 @@ class _AdminScreenState extends State<AdminScreen> {
     );
   }
 
+  actions() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        addEventCard()
+      ],
+    );
+  }
 
   addEventCard(){
     return tappableCard("Add Event", "Create a new event", Icons.event_note, () {
@@ -61,7 +69,6 @@ class _AdminScreenState extends State<AdminScreen> {
         ),
         actions: [
           TextButton(onPressed: () {
-
           }, child: Text("Save"))
         ],
       ));

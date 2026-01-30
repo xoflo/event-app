@@ -1,10 +1,12 @@
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:event_app/const.dart';
-import 'package:flutter/gestures.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:screenshot/screenshot.dart';
+
+import 'admin_action.dart';
 
 class EventScreen extends StatefulWidget {
   const EventScreen({super.key});
@@ -40,7 +42,7 @@ class _EventScreenState extends State<EventScreen> {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  spacing: 15,
+                  spacing: 5,
                   children: [
                     tappableCard("Create Poll", "Let Participants Vote", Icons.poll, createPollDialog),
                     eventStatus == true ? tappableCard("Start Event", "Allow Joining", Icons.play_arrow, startEvent) : tappableCard("Pause Event", "Halt Joining", Icons.pause, startEvent),
@@ -61,54 +63,38 @@ class _EventScreenState extends State<EventScreen> {
 
 
   actionList() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Recent Actions", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 25, color: inverseColor)),
-        Container(
-          height: 400,
-          child: ListView.builder(
-              itemCount: 1,
-              itemBuilder: (context, i) {
-            return ListTile(
-              title: Text("Action Name"),
-              onTap: () {
-
-              },
-            );
-          }),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 5, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Recent Actions", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 25, color: inverseColor)),
+          Container(
+            height: 400,
+            child: ListView.builder(
+                itemCount: 1,
+                itemBuilder: (context, i) {
+              return ListTile(
+                title: Text("Action Name"),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => AdminAction()));
+                },
+              );
+            }),
+          ),
+        ],
+      ),
     );
   }
 
-  qrDialog() {
-    ScreenshotController controller = ScreenshotController();
+  actionDialog() {
 
-    showDialog(context: context, builder: (_) => AlertDialog(
-      title: Text("Event QR"),
-      backgroundColor: backgroundColor,
+  }
 
-      content: Screenshot(
-        controller: controller,
-        child: Container(
-          height: 400,
-          width: 300,
-          child: Column(
-            children: [
-              Text("Event Name", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700)),
-              SizedBox(height: 10),
-              BarcodeWidget(data: 'Event', barcode: Barcode.qrCode()),
-              SizedBox(height: 10),
-              Text("Event Pass", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700)),
-              SizedBox(height: 5),
-              Text("SCAN TO ENTER", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+  scanQr() {
+    if (kIsWeb) {
 
-            ],
-          ),
-        ),
-      ),
-    ));
+    }
   }
 
   startEvent() {
