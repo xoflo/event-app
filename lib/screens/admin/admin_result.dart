@@ -19,24 +19,17 @@ class _AdminResultState extends State<AdminResult> {
 
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(onPressed: () {}, icon: Icon(Icons.pie_chart)),
+          IconButton(onPressed: () {}, icon: Icon(Icons.bar_chart)),
+        ],
         title: Text("Action Name: Action Name"),
       ),
       body: Padding(
         padding: EdgeInsets.all(20),
         child: SingleChildScrollView(
           scrollDirection: isLandscape(context) ? Axis.horizontal : Axis.vertical,
-          child: Column(
-            children: [
-              Row(
-                spacing: 10,
-                children: [
-                  IconButton(onPressed: () {}, icon: Icon(Icons.pie_chart)),
-                  IconButton(onPressed: () {}, icon: Icon(Icons.bar_chart)),
-                ],
-              ),
-              screenSizeHandler()
-            ],
-          ),
+          child: screenSizeHandler(),
         ),
       ),
     );
@@ -44,27 +37,33 @@ class _AdminResultState extends State<AdminResult> {
 
 
   screenSizeHandler() {
-    return isLandscape(context) ?
-    StatefulBuilder(builder: (context, setState) {
-      return Row(
+    return StatefulBuilder(builder: (context, setState) {
+      return isLandscape(context) ? Row(
+        spacing: 10,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          pieChartWidget(setState),
-          ...detailWidget()
+          Center(
+            child: pieChartWidget(setState),
+          ),
+          detailWidget()
         ],
-      );
-    }) : StatefulBuilder(builder: (context, setState) {
-      return Column(
+      ) : Column(
+        spacing: 10,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           pieChartWidget(setState),
-          ...detailWidget()
+          detailWidget()
         ],
       );
     });
+
+
   }
 
   pieChartWidget(void Function(void Function()) setState) {
     return Container(
       height: 400,
+      width:  isLandscape(context) ? (MediaQuery.of(context).size.width / 2) - 20 : null,
       child: PieChart(
           curve: Curves.linear,
           duration: Duration(milliseconds: 250),
@@ -86,10 +85,11 @@ class _AdminResultState extends State<AdminResult> {
   }
 
   detailWidget(){
-    return [selectedIndex == - 1 ?
+    return selectedIndex == -1 ?
     Container(
       padding: EdgeInsets.all(20),
       height: 400,
+      width: isLandscape(context) ? (MediaQuery.of(context).size.width / 2) - 200 : null,
       child: ListView.builder(
           itemCount: 6,
           itemBuilder: (context, i) {
@@ -99,9 +99,15 @@ class _AdminResultState extends State<AdminResult> {
             );
           }),
     )
-        : Text("Option ${selectedIndex+1}", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: selectedIndex == - 1 ? Colors.black : pieChartColors[selectedIndex])),
-    SizedBox(height: 10),
-    Text(selectedIndex == - 1 ? "" : "Votes: ${10 * selectedIndex}", style: TextStyle(fontSize: 40))];
+        : Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text("Option ${selectedIndex+1}", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: selectedIndex == - 1 ? Colors.black : pieChartColors[selectedIndex])),
+        SizedBox(height: 10),
+        Text(selectedIndex == - 1 ? "" : "Votes: ${10 * selectedIndex}", style: TextStyle(fontSize: 40))
+      ],
+    );
 
   }
 
