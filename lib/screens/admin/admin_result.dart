@@ -94,20 +94,25 @@ class _AdminResultState extends State<AdminResult> {
           itemCount: 6,
           itemBuilder: (context, i) {
             return ListTile(
-              title: Text("President Option", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700)),
-              trailing: Text("${i * 20}", style: TextStyle(fontSize: 30, color: pieChartColors[i], fontWeight: FontWeight.w700)),
+              title: Text("President Option", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700)),
+              trailing: Text("${i * 20}", style: TextStyle(fontSize: 40, color: pieChartColors[i], fontWeight: FontWeight.w700)),
             );
           }),
     )
         : Center(
-          child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-          Text("Option ${selectedIndex+1}", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: selectedIndex == - 1 ? Colors.black : pieChartColors[selectedIndex])),
-          SizedBox(height: 20),
-          Text(selectedIndex == - 1 ? "" : "Votes: ${10 * selectedIndex}", style: TextStyle(fontSize: 40))
-                ],
-              ),
+          child: Container(
+            height: 400,
+            width: isLandscape(context) ? (MediaQuery.of(context).size.width / 2) - 200 : null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+            Text("Option ${selectedIndex+1}", style: TextStyle(fontSize: isLandscape(context) ? 80 : 40, fontWeight: FontWeight.w700, color: selectedIndex == - 1 ? Colors.black : pieChartColors[selectedIndex])),
+            SizedBox(height: 20),
+            Text(selectedIndex == - 1 ? "" : "Votes: ${10 * selectedIndex}", style: TextStyle(fontSize: isLandscape(context) ? 80 : 40))
+                  ],
+                ),
+          ),
         );
 
   }
