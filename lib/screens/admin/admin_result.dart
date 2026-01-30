@@ -11,23 +11,28 @@ class AdminResult extends StatefulWidget {
 
 class _AdminResultState extends State<AdminResult> {
 
-  List<Color> pieChartColors = [];
+  List<Color> chartColors = [];
   int selectedIndex = 0;
+  int chartType = 0;
+
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(onPressed: () {
+          IconButton(
+              color: chartType == 0 ? primaryColor : secondaryColor,
+              onPressed: () {
             setState(() {
-
+              chartType = 0;
             });
           }, icon: Icon(Icons.pie_chart)),
-          IconButton(onPressed: () {
+          IconButton(
+              color: chartType == 1 ? primaryColor : secondaryColor,
+              onPressed: () {
             setState(() {
-
+              chartType = 1;
             });
           }, icon: Icon(Icons.bar_chart)),
         ],
@@ -50,22 +55,48 @@ class _AdminResultState extends State<AdminResult> {
         spacing: 10,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Center(
-            child: pieChartWidget(setState),
-          ),
+          chartTypeHandler(setState),
           detailWidget()
         ],
       ) : Column(
         spacing: 10,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          pieChartWidget(setState),
+          chartTypeHandler(setState),
           detailWidget()
         ],
       );
     });
+  }
 
+  chartTypeHandler(void Function(void Function()) setState){
+    if (chartType == 0) {
+      return pieChartWidget(setState);
+    } else {
+      return barChartWidget(setState);
+    }
+  }
 
+  barChartWidget(void Function(void Function()) setState) {
+    return Container(
+      height: isLandscape(context) ? (MediaQuery.of(context).size.height) - 200 : 400,
+      width:  isLandscape(context) ? (MediaQuery.of(context).size.width / 2) + 100 : null,
+      child: BarChart(
+          curve: Curves.linear,
+          duration: Duration(milliseconds: 250),
+          BarChartData(
+              barTouchData: BarTouchData(
+                  enabled: true,
+                  touchCallback: (FlTouchEvent event, barTouchResponse) {
+                    setState(() {
+                      selectedIndex = barTouchResponse!.spot!.touchedBarGroupIndex;
+                    });
+                  }
+              ),
+              barGroups: barDataBuilder(selectedIndex)
+          )
+      ),
+    );
   }
 
   pieChartWidget(void Function(void Function()) setState) {
@@ -103,7 +134,7 @@ class _AdminResultState extends State<AdminResult> {
           itemBuilder: (context, i) {
             return ListTile(
               title: Text("President Option", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700)),
-              trailing: Text("${i * 20}", style: TextStyle(fontSize: 40, color: pieChartColors[i], fontWeight: FontWeight.w700)),
+              trailing: Text("${i * 20}", style: TextStyle(fontSize: 40, color: chartColors[i], fontWeight: FontWeight.w700)),
             );
           }),
     )
@@ -115,9 +146,9 @@ class _AdminResultState extends State<AdminResult> {
               crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-            Text("Option ${selectedIndex+1}", style: TextStyle(fontSize: isLandscape(context) ? 80 : 40, fontWeight: FontWeight.w700, color: selectedIndex == - 1 ? Colors.black : pieChartColors[selectedIndex])),
+            Text("Option ${selectedIndex+1}", overflow: TextOverflow.ellipsis ,style: TextStyle(fontSize: isLandscape(context) ? 80 : 40, fontWeight: FontWeight.w700, color: selectedIndex == - 1 ? Colors.black : chartColors[selectedIndex])),
             SizedBox(height: 20),
-            Text(selectedIndex == - 1 ? "" : "Votes: ${10 * selectedIndex}", style: TextStyle(fontSize: isLandscape(context) ? 80 : 40))
+            Text(selectedIndex == - 1 ? "" : "Votes: ${10 * selectedIndex}", overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: isLandscape(context) ? 80 : 40))
                   ],
                 ),
           ),
@@ -131,7 +162,7 @@ class _AdminResultState extends State<AdminResult> {
     List<PieChartSectionData> data = [];
 
     for (int i= 0; i < 6 ; i++){
-      pieChartColors.add(generateUniqueColor());
+      chartColors.add(generateUniqueColor());
     }
 
     for (int i = 0; i < 6; i++) {
@@ -141,8 +172,31 @@ class _AdminResultState extends State<AdminResult> {
           title: '${i+1}',
           titleStyle: selectedIndex == i ? TextStyle(fontSize: 40) : TextStyle(fontSize: 20),
           radius: selectedIndex == i ? isLandscape(context) ? 400 : 225 : isLandscape(context) ? 350 : 200,
-          color: pieChartColors[i],
+          color: chartColors[i],
         )
+      );
+    }
+
+    return data;
+
+  }
+
+  barDataBuilder(int selectedIndex) {
+    clearUsedColors();
+    List<BarChartGroupData> data = [];
+
+    for (int i= 0; i < 6 ; i++){
+      chartColors.add(generateUniqueColor());
+    }
+
+    for (int i = 0; i < 6; i++) {
+      data.add(
+          BarChartGroupData(
+            x: i,
+            barRods: [
+              BarChartRodData(toY: i.toDouble())
+            ]
+          )
       );
     }
 
