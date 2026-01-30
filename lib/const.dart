@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ntp_dart/models/accurate_time.dart';
+import 'dart:math' as math;
 import 'package:ntp_dart/models/libraries/ntp_io.dart';
 
 final primaryColor = Color(0xffeb5e28);
@@ -12,11 +13,54 @@ final tertiaryColor = Color(0xff403d39);
 final inverseColor = Color(0xff252422);
 
 
+// Functions
+
+Set<Color> usedColors = {};
+
+final List<Color> colorOrder = [
+  Colors.red,
+  Colors.blue,
+  Colors.yellow,
+  Colors.green,
+  Colors.orange,
+  Colors.purple,
+  ...Colors.primaries
+];
+
+Color generateUniqueColor() {
+  for (Color color in colorOrder) {
+    if (!usedColors.contains(color)) {
+      usedColors.add(color);
+      return color;
+    }
+  }
+
+  return Colors.grey;
+}
+
+clearUsedColors (){
+  usedColors.clear();
+}
+
 Future<DateTime> getNetworkTime() async {
   final nowUtc = AccurateTime.nowSync();
   print(nowUtc);
   return nowUtc;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Widgets
 
 TextFieldNumber(String label, TextEditingController? controller) {
   return TextField(
