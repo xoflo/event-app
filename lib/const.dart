@@ -1,3 +1,4 @@
+
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,14 @@ final backgroundColor = Color(0xfffffcf2);
 final tertiaryColor = Color(0xff403d39);
 final inverseColor = Color(0xff252422);
 
+
+isLandscape(BuildContext context) {
+  if (MediaQuery.of(context).size.width > MediaQuery.of(context).size.height) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 // Functions
 
