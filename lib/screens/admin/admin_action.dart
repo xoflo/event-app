@@ -1,3 +1,4 @@
+import 'package:event_app/screens/admin/admin_result.dart';
 import 'package:flutter/material.dart';
 
 import '../../const.dart';
@@ -55,7 +56,9 @@ class _AdminActionState extends State<AdminAction> {
           spacing: 5,
           children: [
             actionStart == true ? tappableCard("Pause Action", "Pause voting", Icons.pause, startAction) : tappableCard("Start Action", "Open voting", Icons.play_arrow, startAction),
-            tappableCard("Live View", "See Results", Icons.pie_chart, () {})
+            tappableCard("Live View", "See Results", Icons.pie_chart, () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => AdminResult()));
+            })
           ],
         ),
       ),
