@@ -20,8 +20,16 @@ class _AdminResultState extends State<AdminResult> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.pie_chart)),
-          IconButton(onPressed: () {}, icon: Icon(Icons.bar_chart)),
+          IconButton(onPressed: () {
+            setState(() {
+
+            });
+          }, icon: Icon(Icons.pie_chart)),
+          IconButton(onPressed: () {
+            setState(() {
+
+            });
+          }, icon: Icon(Icons.bar_chart)),
         ],
         title: Text("Action Name: Action Name"),
       ),
