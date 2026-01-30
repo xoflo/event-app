@@ -99,15 +99,16 @@ class _AdminResultState extends State<AdminResult> {
             );
           }),
     )
-        : Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text("Option ${selectedIndex+1}", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: selectedIndex == - 1 ? Colors.black : pieChartColors[selectedIndex])),
-        SizedBox(height: 10),
-        Text(selectedIndex == - 1 ? "" : "Votes: ${10 * selectedIndex}", style: TextStyle(fontSize: 40))
-      ],
-    );
+        : Center(
+          child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+          Text("Option ${selectedIndex+1}", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: selectedIndex == - 1 ? Colors.black : pieChartColors[selectedIndex])),
+          SizedBox(height: 20),
+          Text(selectedIndex == - 1 ? "" : "Votes: ${10 * selectedIndex}", style: TextStyle(fontSize: 40))
+                ],
+              ),
+        );
 
   }
 
