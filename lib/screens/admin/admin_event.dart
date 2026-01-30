@@ -29,32 +29,35 @@ class _EventScreenState extends State<EventScreen> {
       ),
       body: Padding(
         padding: EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text("Event Name", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700),),
-            Text("Status: Ongoing"),
-            Text("${DateFormat().add_yMMMMd().format(DateTime.now())} ${DateFormat().add_jm().format(DateTime.now())}"),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text("Event Name", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700),),
+              Text("Status: Ongoing"),
+              Text("${DateFormat().add_yMMMMd().format(DateTime.now())} ${DateFormat().add_jm().format(DateTime.now())}"),
 
-            Text("Participants: 92"),
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  spacing: 5,
-                  children: [
-                    tappableCard("Create Poll", "Let Participants Vote", Icons.poll, createPollDialog),
-                    eventStatus == true ? tappableCard("Start Event", "Allow Joining", Icons.play_arrow, startEvent) : tappableCard("Pause Event", "Halt Joining", Icons.pause, startEvent),
-                    tappableCard("End Event", "Save Event", Icons.flag, endEvent)
-                  ],
+              Text("Participants: 92"),
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    spacing: 5,
+                    children: [
+                      tappableCard("Create Poll", "Let Participants Vote", Icons.poll, createPollDialog),
+                      eventStatus == true ? tappableCard("Start Event", "Allow Joining", Icons.play_arrow, startEvent) : tappableCard("Pause Event", "Halt Joining", Icons.pause, startEvent),
+                      tappableCard("End Event", "Save Event", Icons.flag, endEvent)
+                    ],
+                  ),
                 ),
               ),
-            ),
-            actionList()
+              actionList()
 
 
-          ],
+            ],
+          ),
         ),
       )
     );

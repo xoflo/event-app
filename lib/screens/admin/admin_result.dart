@@ -62,8 +62,8 @@ class _AdminResultState extends State<AdminResult> {
 
   pieChartWidget(void Function(void Function()) setState) {
     return Container(
-      height: 400,
-      width:  isLandscape(context) ? (MediaQuery.of(context).size.width / 2) - 20 : null,
+      height: isLandscape(context) ? (MediaQuery.of(context).size.height) - 200 : 400,
+      width:  isLandscape(context) ? (MediaQuery.of(context).size.width / 2) + 100 : null,
       child: PieChart(
           curve: Curves.linear,
           duration: Duration(milliseconds: 250),
@@ -126,7 +126,7 @@ class _AdminResultState extends State<AdminResult> {
           value: i+1 *2,
           title: '${i+1}',
           titleStyle: selectedIndex == i ? TextStyle(fontSize: 40) : TextStyle(fontSize: 20),
-          radius: selectedIndex == i ? 225 : 200,
+          radius: selectedIndex == i ? isLandscape(context) ? 400 : 225 : isLandscape(context) ? 350 : 200,
           color: pieChartColors[i],
         )
       );
