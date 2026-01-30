@@ -14,6 +14,8 @@ class EventScreen extends StatefulWidget {
 }
 
 class _EventScreenState extends State<EventScreen> {
+  bool eventStatus = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,8 +40,11 @@ class _EventScreenState extends State<EventScreen> {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
+                  spacing: 15,
                   children: [
                     tappableCard("Create Poll", "Let Participants Vote", Icons.poll, createPollDialog),
+                    eventStatus == true ? tappableCard("Start Event", "Allow Joining", Icons.play_arrow, startEvent) : tappableCard("Pause Event", "Halt Joining", Icons.pause, startEvent),
+                    tappableCard("End Event", "Save Event", Icons.flag, endEvent)
                   ],
                 ),
               ),
@@ -104,6 +109,18 @@ class _EventScreenState extends State<EventScreen> {
         ),
       ),
     ));
+  }
+
+  startEvent() {
+    setState(() {
+      eventStatus = !eventStatus;
+    });
+  }
+
+  endEvent() {
+    setState(() {
+
+    });
   }
 
 

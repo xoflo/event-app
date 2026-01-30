@@ -21,18 +21,21 @@ class _AdminScreenState extends State<AdminScreen> {
         centerTitle: true,
         title: Text("Event Administrator", style: TextStyle(color: inverseColor, fontWeight: FontWeight.w800, fontSize: 24)),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                addEventCard()
-              ],
-            ),
-            SizedBox(height: 15),
-            eventList()
-          ],
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  addEventCard()
+                ],
+              ),
+              SizedBox(height: 15),
+              eventList()
+            ],
+          ),
         ),
       ),
     );
@@ -40,7 +43,30 @@ class _AdminScreenState extends State<AdminScreen> {
 
 
   addEventCard(){
-    return tappableCard("Add Event", "Create a new event", Icons.event_note, () {print("Add Event");});
+    return tappableCard("Add Event", "Create a new event", Icons.event_note, () {
+      showDialog(context: context, builder: (_) => AlertDialog(
+        title: Text("Add Event"),
+        content: Container(
+          height: 60,
+          width: 200,
+          child: Column(
+            children: [
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'Event Name'
+                ),
+              )
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () {
+
+          }, child: Text("Save"))
+        ],
+      ));
+
+    });
   }
 
   eventList() {
