@@ -1,4 +1,5 @@
 import 'package:event_app/const.dart';
+import 'package:event_app/models/event.dart';
 import 'package:event_app/screens/admin/admin_action.dart';
 import 'package:flutter/material.dart';
 import 'admin_event.dart';
@@ -15,11 +16,8 @@ class _AdminScreenState extends State<AdminScreen> {
 
 
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       backgroundColor: backgroundColor,
-
       appBar: AppBar(
         backgroundColor: secondaryColor,
         centerTitle: true,
@@ -51,6 +49,8 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   addEventCard(){
+    TextEditingController controller = TextEditingController();
+
     return tappableCard("Add Event", "Create a new event", Icons.event_note, () {
       showDialog(context: context, builder: (_) => AlertDialog(
         title: Text("Add Event"),
@@ -60,6 +60,7 @@ class _AdminScreenState extends State<AdminScreen> {
           child: Column(
             children: [
               TextField(
+                controller: controller,
                 decoration: InputDecoration(
                   labelText: 'Event Name'
                 ),
@@ -69,11 +70,26 @@ class _AdminScreenState extends State<AdminScreen> {
         ),
         actions: [
           TextButton(onPressed: () {
+            addEventFirebase(controller.text);
           }, child: Text("Save"))
         ],
       ));
-
     });
+  }
+
+  addEventFirebase(String eventName) async {
+
+    loadingWidget(context);
+    await eventsCollection.add(
+        Event(
+            eventName: eventName,
+            eventCreated: DateTime.now(),
+            participants: 0,
+            status: "Ongoing"
+        ).toFirebase()
+    );
+    snackBarWidget(context, "Event Added");
+    Navigator.pop(context);
   }
 
   eventList() {

@@ -1,5 +1,6 @@
 
 import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,11 @@ final secondaryColor = Color(0xffccc5b9);
 final backgroundColor = Color(0xfffffcf2);
 final tertiaryColor = Color(0xff403d39);
 final inverseColor = Color(0xff252422);
+
+// Firebase
+
+final firebaseFirestore = FirebaseFirestore.instance;
+final eventsCollection = firebaseFirestore.collection('digos');
 
 
 // Functions
@@ -80,6 +86,31 @@ String formatSeconds(int seconds) {
 
 
 // Widgets
+
+
+loadingWidget(BuildContext context) {
+  return showDialog(context: context, builder: (_) => AlertDialog(
+    content: Container(
+      height: 100,
+      width: 100,
+      child: Column(
+      children: [
+        Container(
+            height: 50,
+            width: 50,
+            child: CircularProgressIndicator()),
+        SizedBox(height: 10),
+        Text("Loading...")
+
+      ],
+    ),
+  )));
+}
+
+snackBarWidget(BuildContext context, String content) {
+  return ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(content)));
+}
+
 
 TextFieldNumber(String label, TextEditingController? controller) {
   return TextField(
