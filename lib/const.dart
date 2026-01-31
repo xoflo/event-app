@@ -14,6 +14,8 @@ final tertiaryColor = Color(0xff403d39);
 final inverseColor = Color(0xff252422);
 
 
+// Functions
+
 isLandscape(BuildContext context) {
   if (MediaQuery.of(context).size.width > MediaQuery.of(context).size.height) {
     return true;
@@ -22,7 +24,6 @@ isLandscape(BuildContext context) {
   }
 }
 
-// Functions
 
 Set<Color> usedColors = {};
 
@@ -58,13 +59,22 @@ Future<DateTime> getNetworkTime() async {
 }
 
 
+String formatSeconds(int seconds) {
+  final duration = Duration(seconds: seconds);
+  final hours = duration.inHours;
+  // Get remaining minutes after accounting for hours
+  final minutes = duration.inMinutes.remainder(60);
+  // Get remaining seconds after accounting for minutes
+  final remainingSeconds = duration.inSeconds.remainder(60);
 
+  // Format with leading zeros for all parts
+  final hoursStr = hours.toString().padLeft(2, '0');
+  final minutesStr = minutes.toString().padLeft(2, '0');
+  final secondsStr = remainingSeconds.toString().padLeft(2, '0');
 
-
-
-
-
-
+  // Return the formatted string in HH:MM:SS format
+  return '$hoursStr:$minutesStr:$secondsStr';
+}
 
 
 
@@ -124,23 +134,6 @@ tappableCard(
       },
     );
   });
-}
-
-String formatSeconds(int seconds) {
-  final duration = Duration(seconds: seconds);
-  final hours = duration.inHours;
-  // Get remaining minutes after accounting for hours
-  final minutes = duration.inMinutes.remainder(60);
-  // Get remaining seconds after accounting for minutes
-  final remainingSeconds = duration.inSeconds.remainder(60);
-
-  // Format with leading zeros for all parts
-  final hoursStr = hours.toString().padLeft(2, '0');
-  final minutesStr = minutes.toString().padLeft(2, '0');
-  final secondsStr = remainingSeconds.toString().padLeft(2, '0');
-
-  // Return the formatted string in HH:MM:SS format
-  return '$hoursStr:$minutesStr:$secondsStr';
 }
 
 
