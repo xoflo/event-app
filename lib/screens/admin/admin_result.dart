@@ -82,14 +82,44 @@ class _AdminResultState extends State<AdminResult> {
       height: isLandscape(context) ? (MediaQuery.of(context).size.height) - 200 : 400,
       width:  isLandscape(context) ? (MediaQuery.of(context).size.width / 2) + 100 : null,
       child: BarChart(
+
           curve: Curves.linear,
           duration: Duration(milliseconds: 250),
           BarChartData(
+            titlesData: FlTitlesData(
+              show: true,
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (value, meta) {
+                    return Text(
+                      overflow: TextOverflow.ellipsis,
+                      'Option ${value.toInt() + 1}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: chartColors[value.toInt()]
+                    ));
+                  }
+              )
+            )),
+              gridData: FlGridData(
+                  drawVerticalLine: false,  // remove vertical lines in the grid
+                  getDrawingHorizontalLine: (val){
+                    return FlLine(
+                      color: Colors.grey.shade400, // Sets the color of horizontal grid lines
+                      strokeWidth: 1.0, // Sets the thickness of the grid lines
+                    );
+                  }
+              ),
               barTouchData: BarTouchData(
                   enabled: true,
                   touchCallback: (FlTouchEvent event, barTouchResponse) {
                     setState(() {
-                      selectedIndex = barTouchResponse!.spot!.touchedBarGroupIndex;
+                      try {
+                        selectedIndex = barTouchResponse!.spot!.touchedBarGroupIndex;
+                      } catch(e) {
+                        selectedIndex = -1;
+                      }
                     });
                   }
               ),
@@ -127,7 +157,7 @@ class _AdminResultState extends State<AdminResult> {
     return selectedIndex == -1 ?
     Container(
       padding: EdgeInsets.all(20),
-      height: 400,
+      height: isLandscape(context) ? 800 : 400,
       width: isLandscape(context) ? (MediaQuery.of(context).size.width / 2) - 200 : null,
       child: ListView.builder(
           itemCount: 6,
@@ -140,7 +170,7 @@ class _AdminResultState extends State<AdminResult> {
     )
         : Center(
           child: Container(
-            height: 400,
+            height: isLandscape(context) ? 800 : 400,
             width: isLandscape(context) ? (MediaQuery.of(context).size.width / 2) - 200 : null,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -192,9 +222,14 @@ class _AdminResultState extends State<AdminResult> {
     for (int i = 0; i < 6; i++) {
       data.add(
           BarChartGroupData(
+              groupVertically: true,
             x: i,
             barRods: [
-              BarChartRodData(toY: i.toDouble())
+              BarChartRodData(
+                borderRadius: BorderRadius.circular(0),
+                  width: 50,
+                  color: chartColors[i],
+                  toY: i+1.toDouble())
             ]
           )
       );
