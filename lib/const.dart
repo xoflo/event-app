@@ -60,7 +60,6 @@ clearUsedColors (){
 
 Future<DateTime> getNetworkTime() async {
   final nowUtc = AccurateTime.nowSync();
-  print(nowUtc);
   return nowUtc;
 }
 

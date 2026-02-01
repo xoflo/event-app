@@ -286,8 +286,10 @@ class _EventScreenState extends State<EventScreen> {
           await eventsCollection.doc(widget.eventDoc).collection('actions').add({
             'actionName' : pollName.text,
             'durationInSeconds' : totalSeconds,
+            'durationTotal' : totalSeconds,
             'options' : optionMap,
-            'status' : "Preparing"
+            'status' : "Preparing",
+            'startTime' : null
           });
 
           Navigator.pop(context);

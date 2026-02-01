@@ -21,8 +21,6 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform
   );
 
-  await getNetworkTime();
-
 }
 
 class MyApp extends StatelessWidget {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:event_app/screens/admin/admin_result.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +16,6 @@ class AdminAction extends StatefulWidget {
 }
 
 class _AdminActionState extends State<AdminAction> {
-
-  bool actionStart = false;
 
 
   @override
@@ -38,10 +38,37 @@ class _AdminActionState extends State<AdminAction> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(snapshot.data['actionName'], style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700),),
-                  Text("Duration: ${secondsToDisplay(snapshot.data['durationInSeconds'])}"),
+
+                  Text("Duration: ${formatSeconds(snapshot.data['durationTotal'])}"),
+                  // Timer Widget Below:
+
+                  Builder(
+                    builder: (context) {
+                      int timeDisplay = snapshot.data['durationInSeconds'];
+
+                      return StatefulBuilder(builder: (BuildContext context, void Function(void Function()) setState) {
+                        if (snapshot.data['status'] == "Ongoing") {
+                          if (timeDisplay < 0) {
+
+                          }
+
+                          Timer(Duration(seconds: 1), () {
+                            setState(() {
+                              timeDisplay--;
+                            });
+                          });
+                        }
+
+
+                        return Text("Time Remaining: ${secondsToDisplay(timeDisplay)}");
+                      });
+                    }
+                  ),
+
+
                   Text("Status: ${snapshot.data['status']}"),
                   SizedBox(height: 10),
-                  actions(),
+                  actions(snapshot.data['status']),
                   optionList(snapshot)
 
 
@@ -54,7 +81,7 @@ class _AdminActionState extends State<AdminAction> {
     );
   }
 
-  actions() {
+  actions(String status) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 5, 20, 0),
       child: SingleChildScrollView(
@@ -63,7 +90,7 @@ class _AdminActionState extends State<AdminAction> {
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 5,
           children: [
-            actionStart == true ? tappableCard("Pause Action", "Pause voting", Icons.pause, startAction) : tappableCard("Start Action", "Open voting", Icons.play_arrow, startAction),
+            status == "Ongoing" ? tappableCard("Pause Action", "Pause voting", Icons.pause, startAction) : tappableCard("Start Action", "Open voting", Icons.play_arrow, startAction),
             tappableCard("Live View", "See Results", Icons.pie_chart, () {
               Navigator.push(context, MaterialPageRoute(builder: (_) => AdminResult()));
             })
@@ -75,19 +102,42 @@ class _AdminActionState extends State<AdminAction> {
 
   startAction() async {
 
+    loadingWidget(context);
+
     final status = await widget.actionRef!.get().then((value) {
       return value.get('status');
     });
 
     if (status == "Preparing") {
-      widget.actionRef!.update({
+      await widget.actionRef!.update({
+        'startTime' : await getNetworkTime(),
         'status' : "Ongoing"
       });
+
+
     } else {
-      widget.actionRef!.update({
-        'status' : "Preparing"
+
+      final Timestamp recentStartTime = await widget.actionRef!.get().then((value) {
+        return value.get('startTime');
       });
+
+      final DateTime utcNow = await getNetworkTime();
+      final differenceInSeconds = utcNow.difference(recentStartTime.toDate()).inSeconds;
+
+      final duration = await widget.actionRef!.get().then((value) {
+        return value.get('durationInSeconds');
+      });
+
+      await widget.actionRef!.update({
+        'status' : "Preparing",
+        'durationInSeconds' : duration - differenceInSeconds
+      });
+
     }
+
+
+    Navigator.pop(context);
+
 
   }
 
