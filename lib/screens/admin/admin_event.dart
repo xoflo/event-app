@@ -9,14 +9,16 @@ import 'package:screenshot/screenshot.dart';
 import 'admin_action.dart';
 
 class EventScreen extends StatefulWidget {
-  const EventScreen({super.key});
+  const EventScreen({super.key, this.eventDoc});
+
+  final String? eventDoc;
 
   @override
   State<EventScreen> createState() => _EventScreenState();
 }
 
 class _EventScreenState extends State<EventScreen> {
-  bool eventStatus = false;
+
 
   @override
   Widget build(BuildContext context) {
@@ -25,40 +27,59 @@ class _EventScreenState extends State<EventScreen> {
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: secondaryColor,
-        title: Text('Event: Event Name', style: TextStyle(fontWeight: FontWeight.w700),),
+        title: Text('Event', style: TextStyle(fontWeight: FontWeight.w700),),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(20.0),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text("Event Name", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700),),
-              Text("Status: Ongoing"),
-              Text("${DateFormat().add_yMMMMd().format(DateTime.now())} ${DateFormat().add_jm().format(DateTime.now())}"),
+      body: StreamBuilder(
+        stream: eventsCollection.doc(widget.eventDoc).snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
 
-              Text("Participants: 92"),
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    spacing: 5,
-                    children: [
-                      tappableCard("Create Poll", "Let Participants Vote", Icons.poll, createPollDialog),
-                      eventStatus == true ? tappableCard("Start Event", "Allow Joining", Icons.play_arrow, startEvent) : tappableCard("Pause Event", "Halt Joining", Icons.pause, startEvent),
-                      tappableCard("End Event", "Save Event", Icons.flag, endEvent)
-                    ],
-                  ),
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: SizedBox(
+                height: 50,
+                width: 50,
+                child: CircularProgressIndicator()));
+
+          } else {
+            String? eventStatus = snapshot.data['status'];
+
+
+            return Padding(
+              padding: EdgeInsets.all(20.0),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(snapshot.data['eventName'], style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700),),
+                    Text("Status: ${snapshot.data['status']}"),
+                    Text("${DateFormat().add_yMMMMd().format(DateTime.now())} ${DateFormat().add_jm().format(DateTime.now())}"),
+
+                    Text("Total Participants: ${snapshot.data['participants']}"),
+                    Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: eventStatus == "Complete" ? Text("Event Completed", style: TextStyle(fontSize: 50, fontWeight: FontWeight.w700, color: Colors.green)) :  SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          spacing: 5,
+                          children: [
+                            tappableCard("Create Poll", "Let Participants Vote", Icons.poll, createPollDialog),
+                            eventStatus == "Preparing" ? tappableCard("Start Event", "Allow Joining", Icons.play_arrow, startEvent) : tappableCard("Pause Event", "Halt Joining", Icons.pause, startEvent),
+                            tappableCard("End Event", "Save Event", Icons.flag, endEvent)
+                          ],
+                        ),
+                      ),
+                    ),
+                    actionList()
+
+
+                  ],
                 ),
               ),
-              actionList()
+            );
+          }
 
 
-            ],
-          ),
-        ),
+        },
       )
     );
   }
@@ -72,18 +93,36 @@ class _EventScreenState extends State<EventScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text("Recent Actions", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 25, color: inverseColor)),
-          Container(
-            height: 400,
-            child: ListView.builder(
-                itemCount: 1,
-                itemBuilder: (context, i) {
-              return ListTile(
-                title: Text("Action Name"),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => AdminAction()));
-                },
-              );
-            }),
+          StreamBuilder(
+            stream: eventsCollection.doc(widget.eventDoc).collection('actions').snapshots(),
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: SizedBox(
+                    height: 50,
+                    width: 50,
+                    child: CircularProgressIndicator()));
+
+              } else {
+                return snapshot.data!.docs.length == 0 ? Container(
+                  height: 50,
+                  child: Center(
+                    child: Text("No actions found", style: TextStyle(color: Colors.grey)),
+                  ),
+                ) : Container(
+                  height: 400,
+                  child: ListView.builder(
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, i) {
+                        return ListTile(
+                          title: Text(snapshot.data!.docs[i].get("pollName")),
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => AdminAction()));
+                          },
+                        );
+                      }),
+                );;
+              }
+            },
           ),
         ],
       ),
@@ -100,17 +139,36 @@ class _EventScreenState extends State<EventScreen> {
     }
   }
 
-  startEvent() {
-    setState(() {
-      eventStatus = !eventStatus;
+  startEvent() async {
+    loadingWidget(context);
+
+
+    final status = await eventsCollection.doc(widget.eventDoc).get().then((value) {
+      return value.get('status');
+    });
+
+    if (status == "Preparing") {
+      await eventsCollection.doc(widget.eventDoc).update({
+        'status' : "Ongoing"
+      });
+    } else {
+      await eventsCollection.doc(widget.eventDoc).update({
+        'status' : "Preparing"
+      });
+    }
+    Navigator.pop(context);
+  }
+
+  endEvent() async {
+    confirmDialog(context, "This event will be completed", () async {
+      loadingWidget(context);
+      await eventsCollection.doc(widget.eventDoc).update({
+        'status' : "Complete"
+      });
+      Navigator.pop(context);
     });
   }
 
-  endEvent() {
-    setState(() {
-
-    });
-  }
 
 
   createPollDialog() {
@@ -210,7 +268,7 @@ class _EventScreenState extends State<EventScreen> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () {
+        TextButton(onPressed: () async {
 
           final hoursInSeconds = int.parse(hours.text.isEmpty ? "0" : hours.text);
           final minutesInSeconds = int.parse(minutes.text.isEmpty ? "0" : minutes.text);
@@ -218,11 +276,18 @@ class _EventScreenState extends State<EventScreen> {
 
           final totalSeconds = hoursInSeconds * 3600 + minutesInSeconds * 60 + secondsInSeconds;
 
-          print(pollName.text);
-          print(totalSeconds);
-          print(options);
+          loadingWidget(context);
+
+          await eventsCollection.doc(widget.eventDoc).collection('actions').add({
+            'actionName' : pollName.text,
+            'durationInSeconds' : totalSeconds,
+            'options' : options,
+            'status' : "Preparing"
+          });
 
           Navigator.pop(context);
+          Navigator.pop(context);
+          snackBarWidget(context, "Action Added");
 
         }, child: Text("Save Poll"))
       ],

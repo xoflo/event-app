@@ -87,9 +87,34 @@ String formatSeconds(int seconds) {
 
 // Widgets
 
+confirmDialog(BuildContext context, String content, void Function() onConfirm) {
+  showDialog(context: context, builder: (_) => AlertDialog(
+    title: Text("Confirm"),
+    content: Container(
+      height: 100,
+      width: 200,
+      child: Column(
+        children: [
+          Icon(Icons.warning, size: 40),
+          SizedBox(height: 10),
+          Text("$content", style: TextStyle(fontSize: 15), textAlign: TextAlign.center,),
+          Text("This action cannot be undone.", style: TextStyle(color: Colors.grey))
+        ],
+      ),
+    ),
+    actions: [
+      TextButton(onPressed: () {
+        onConfirm();
+      }, child: Text("Confirm"))
+    ],
+
+  ));
+}
 
 loadingWidget(BuildContext context) {
-  return showDialog(context: context, builder: (_) => AlertDialog(
+  return showDialog(
+      barrierDismissible: false,
+      context: context, builder: (_) => AlertDialog(
     content: Container(
       height: 100,
       width: 100,

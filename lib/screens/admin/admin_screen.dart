@@ -85,7 +85,7 @@ class _AdminScreenState extends State<AdminScreen> {
             eventName: eventName,
             eventCreated: DateTime.now(),
             participants: 0,
-            status: "Ongoing"
+            status: "Preparing"
         ).toFirebase()
     );
     snackBarWidget(context, "Event Added");
@@ -102,33 +102,34 @@ class _AdminScreenState extends State<AdminScreen> {
           Container(
             height: 400,
             child: StreamBuilder(
-              stream: eventsCollection.snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                 return Center(child: CircularProgressIndicator());
-                } else {
-                  return snapshot.data!.docs.length == 0 ? Center(
-                    child: Text("No Events", style: TextStyle(color: Colors.grey)),
-                  ) : ListView.builder(
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (context, i) {
+                stream: eventsCollection.snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else {
+                    return snapshot.data!.docs.length == 0 ? Center(
+                      child: Text("No event found", style: TextStyle(color: Colors.grey)),
+                    ) : ListView.builder(
+                        itemCount: snapshot.data!.docs.length,
+                        itemBuilder: (context, i) {
 
-                        return ListTile(
-                          title: Text(snapshot.data!.docs[i].get('eventName')),
-                          subtitle: Text("Status: ${snapshot.data!.docs[i].get('status')}"),
-                          trailing: IconButton(onPressed: () async {
-                            loadingWidget(context);
-                            await snapshot.data!.docs[i].reference.delete();
-                            Navigator.pop(context);
-                            snackBarWidget(context, "Event Deleted");
-                          }, icon: Icon(
-                              Icons.delete)),
-                          onTap: () {
-                          },
-                        );
-                      });
+                          return ListTile(
+                            title: Text(snapshot.data!.docs[i].get('eventName')),
+                            subtitle: Text("Status: ${snapshot.data!.docs[i].get('status')}"),
+                            trailing: IconButton(onPressed: () async {
+                              loadingWidget(context);
+                              await snapshot.data!.docs[i].reference.delete();
+                              Navigator.pop(context);
+                              snackBarWidget(context, "Event Deleted");
+                            }, icon: Icon(
+                                Icons.delete)),
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => EventScreen(eventDoc: snapshot.data!.docs[i].id)));
+                            },
+                          );
+                        });
+                  }
                 }
-              }
             ),
           ),
         ],
