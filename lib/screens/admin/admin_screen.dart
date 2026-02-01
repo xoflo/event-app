@@ -104,28 +104,29 @@ class _AdminScreenState extends State<AdminScreen> {
             child: StreamBuilder(
               stream: eventsCollection.snapshots(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                  return ListView.builder(
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                 return Center(child: CircularProgressIndicator());
+                } else {
+                  return snapshot.data!.docs.length == 0 ? Center(
+                    child: Text("No Events", style: TextStyle(color: Colors.grey)),
+                  ) : ListView.builder(
                       itemCount: snapshot.data!.docs.length,
                       itemBuilder: (context, i) {
 
-                        Event event = Event().fromJson(snapshot.data!.docs[i].data());
-
                         return ListTile(
-                          title: Text(event.eventName!),
-                          subtitle: Text("Status: ${event.status}"),
-                          trailing: IconButton(onPressed: () {}, icon: Icon(
+                          title: Text(snapshot.data!.docs[i].get('eventName')),
+                          subtitle: Text("Status: ${snapshot.data!.docs[i].get('status')}"),
+                          trailing: IconButton(onPressed: () async {
+                            loadingWidget(context);
+                            await snapshot.data!.docs[i].reference.delete();
+                            Navigator.pop(context);
+                            snackBarWidget(context, "Event Deleted");
+                          }, icon: Icon(
                               Icons.delete)),
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(
-                                builder: (_) => EventScreen()));
                           },
                         );
                       });
-                } else {
-                  return Center(
-                    child: Text("No data found."),
-                  );
                 }
               }
             ),
