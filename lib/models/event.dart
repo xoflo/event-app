@@ -18,5 +18,13 @@ class Event {
     };
   }
 
+
+  fromJson(Map<String, dynamic> json) {
+    eventName = json['eventName'];
+    eventCreated = json['eventCreated'].toDate();
+    participants = json['participants'];
+    status = json['status'];
+  }
+
 }
 

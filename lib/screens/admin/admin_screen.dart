@@ -101,18 +101,34 @@ class _AdminScreenState extends State<AdminScreen> {
           Text("Event List", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 25, color: inverseColor)),
           Container(
             height: 400,
-            child: ListView.builder(
-                itemCount: 1,
-                itemBuilder: (context, i) {
-              return ListTile(
-                title: Text("Event ${i+1}: Event Name"),
-                subtitle: Text("Status: Ongoing"),
-                trailing: IconButton(onPressed: () {}, icon: Icon(Icons.delete)),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => EventScreen()));
-                },
-              );
-            }),
+            child: StreamBuilder(
+              stream: eventsCollection.snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                  return ListView.builder(
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, i) {
+
+                        Event event = Event().fromJson(snapshot.data!.docs[i].data());
+
+                        return ListTile(
+                          title: Text(event.eventName!),
+                          subtitle: Text("Status: ${event.status}"),
+                          trailing: IconButton(onPressed: () {}, icon: Icon(
+                              Icons.delete)),
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(
+                                builder: (_) => EventScreen()));
+                          },
+                        );
+                      });
+                } else {
+                  return Center(
+                    child: Text("No data found."),
+                  );
+                }
+              }
+            ),
           ),
         ],
       ),
