@@ -73,10 +73,22 @@ class _AdminActionState extends State<AdminAction> {
     );
   }
 
-  startAction() {
-    setState(() {
-      actionStart = !actionStart;
+  startAction() async {
+
+    final status = await widget.actionRef!.get().then((value) {
+      return value.get('status');
     });
+
+    if (status == "Preparing") {
+      widget.actionRef!.update({
+        'status' : "Ongoing"
+      });
+    } else {
+      widget.actionRef!.update({
+        'status' : "Preparing"
+      });
+    }
+
   }
 
   optionList(AsyncSnapshot<dynamic> snapshot) {
