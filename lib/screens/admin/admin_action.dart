@@ -1,10 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:event_app/screens/admin/admin_result.dart';
 import 'package:flutter/material.dart';
 
 import '../../const.dart';
 
 class AdminAction extends StatefulWidget {
-  const AdminAction({super.key});
+  const AdminAction({super.key, this.actionRef});
+
+  final DocumentReference<Map<String, dynamic>>? actionRef;
 
   @override
   State<AdminAction> createState() => _AdminActionState();
@@ -21,26 +24,31 @@ class _AdminActionState extends State<AdminAction> {
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: secondaryColor,
-        title: Text('Action: Action Name', style: TextStyle(fontWeight: FontWeight.w700),),
+        title: Text('Action', style: TextStyle(fontWeight: FontWeight.w700),),
       ),
 
       body: Padding(
           padding: EdgeInsets.all(20),
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text("Action Name", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700),),
-                Text("Duration: 00:00:00"),
-                Text("Status: Complete"),
-                SizedBox(height: 10),
-                actions(),
-                optionList()
+          child: StreamBuilder(
+            stream: widget.actionRef!.snapshots(),
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(snapshot.data['actionName'], style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700),),
+                  Text("Duration: ${secondsToDisplay(snapshot.data['durationInSeconds'])}"),
+                  Text("Status: ${snapshot.data['status']}"),
+                  SizedBox(height: 10),
+                  actions(),
+                  optionList(snapshot)
 
 
-          ],
-                ),
+                ],);
+            },
+
+          ),
         ),
       )
     );
@@ -71,7 +79,7 @@ class _AdminActionState extends State<AdminAction> {
     });
   }
 
-  optionList() {
+  optionList(AsyncSnapshot<dynamic> snapshot) {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -82,13 +90,13 @@ class _AdminActionState extends State<AdminAction> {
           Container(
             height: 400,
             child: ListView.builder(
-              itemCount: 1,
+              itemCount: snapshot.data['options'].length,
                 itemBuilder: (context, i) {
                   return ListTile(
-                    title: Text("Option"),
+                    title: Text(snapshot.data['options.opt$i.name']),
                     subtitle: Text("Option ${i+1}"),
                     onTap: () {
-                      editOptionDialog();
+                      editOptionDialog(snapshot, i);
                     },
                   );
                 }),
@@ -100,8 +108,10 @@ class _AdminActionState extends State<AdminAction> {
   }
 
 
-  editOptionDialog() {
+  editOptionDialog(AsyncSnapshot<dynamic> snapshot, int i) {
     TextEditingController controller = TextEditingController();
+
+    controller.text = snapshot.data['options.opt$i.name'];
 
     showDialog(context: context, builder: (_) => AlertDialog(
       title: Text("Edit Option"),
@@ -121,6 +131,10 @@ class _AdminActionState extends State<AdminAction> {
       ),
       actions: [
         TextButton(onPressed: () {
+
+          widget.actionRef!.update({
+            'options.opt$i.name' : controller.text,
+          });
 
           Navigator.pop(context);
         }, child: Text("Update Option"))

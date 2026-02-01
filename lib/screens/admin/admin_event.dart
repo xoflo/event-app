@@ -114,9 +114,10 @@ class _EventScreenState extends State<EventScreen> {
                       itemCount: snapshot.data!.docs.length,
                       itemBuilder: (context, i) {
                         return ListTile(
-                          title: Text(snapshot.data!.docs[i].get("pollName")),
+                          title: Text(snapshot.data!.docs[i].get("actionName")),
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (_) => AdminAction()));
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => AdminAction(
+                                actionRef: eventsCollection.doc(widget.eventDoc).collection('actions').doc(snapshot.data!.docs[i].id))));
                           },
                         );
                       }),
@@ -232,10 +233,12 @@ class _EventScreenState extends State<EventScreen> {
                           ),
                         ),
                         trailing: IconButton(onPressed: () {
-                          if (optionController.text.isNotEmpty) {
+                          if (optionController.text.trim().isNotEmpty && !options.contains(optionController.text.trim())) {
                             setState(() {
                               options.add(optionController.text);
                             });
+                          } else {
+                            snackBarWidget(context, "Option already added");
                           }
                         }, icon: Icon(Icons.add)),
                       );
@@ -278,10 +281,12 @@ class _EventScreenState extends State<EventScreen> {
 
           loadingWidget(context);
 
+          final optionMap = optionMapper(options);
+
           await eventsCollection.doc(widget.eventDoc).collection('actions').add({
             'actionName' : pollName.text,
             'durationInSeconds' : totalSeconds,
-            'options' : options,
+            'options' : optionMap,
             'status' : "Preparing"
           });
 
@@ -292,6 +297,20 @@ class _EventScreenState extends State<EventScreen> {
         }, child: Text("Save Poll"))
       ],
     ));
+  }
+
+  optionMapper(List<String> options) {
+
+    Map<String, dynamic> optionList = {};
+
+    for (int i = 0; i < options.length; i++) {
+      optionList["opt$i"] = {
+        'name' : options[i],
+        'votes' : 0
+      };
+    }
+
+    return optionList;
   }
 
 }

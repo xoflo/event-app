@@ -82,6 +82,16 @@ String formatSeconds(int seconds) {
   return '$hoursStr:$minutesStr:$secondsStr';
 }
 
+String secondsToDisplay(int? seconds) {
+  final safeSeconds = seconds ?? 0;
+  final duration = Duration(seconds: safeSeconds);
+
+  return '${duration.inHours.toString().padLeft(2, '0')}:'
+      '${duration.inMinutes.remainder(60).toString().padLeft(2, '0')}:'
+      '${duration.inSeconds.remainder(60).toString().padLeft(2, '0')}';
+}
+
+
 
 
 
