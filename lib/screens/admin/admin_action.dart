@@ -95,6 +95,7 @@ class _AdminActionState extends State<AdminAction> {
                   return ListTile(
                     title: Text(snapshot.data['options.opt$i.name']),
                     subtitle: Text("Option ${i+1}"),
+                    trailing: Text(snapshot.data['options.opt$i.votes'].toString(), style: TextStyle(fontSize: 20),),
                     onTap: () {
                       editOptionDialog(snapshot, i);
                     },
