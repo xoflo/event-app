@@ -120,6 +120,7 @@ class _EventScreenState extends State<EventScreen> {
                               actionName: snapshot.data!.docs[i].get("actionName"),
                                 actionRef: eventsCollection.doc(widget.eventDoc).collection('actions').doc(snapshot.data!.docs[i].id))));
                           },
+                          trailing: Text("${snapshot.data!.docs[i].get("status")}", style: TextStyle(fontSize: 20)),
                         );
                       }),
                 );;
