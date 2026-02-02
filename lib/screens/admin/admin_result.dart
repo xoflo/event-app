@@ -1,9 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:event_app/const.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class AdminResult extends StatefulWidget {
-  const AdminResult({super.key});
+  const AdminResult({super.key, this.actionRef});
+
+
+  final DocumentReference<Map<String, dynamic>>? actionRef;
+
 
   @override
   State<AdminResult> createState() => _AdminResultState();
@@ -36,7 +41,7 @@ class _AdminResultState extends State<AdminResult> {
             });
           }, icon: Icon(Icons.bar_chart)),
         ],
-        title: Text("Action Name: Action Name"),
+        title: Text("Action"),
       ),
       body: Padding(
         padding: EdgeInsets.all(20),
@@ -50,34 +55,50 @@ class _AdminResultState extends State<AdminResult> {
 
 
   screenSizeHandler() {
-    return StatefulBuilder(builder: (context, setState) {
-      return isLandscape(context) ? Row(
-        spacing: 10,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          chartTypeHandler(setState),
-          detailWidget()
-        ],
-      ) : Column(
-        spacing: 10,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          chartTypeHandler(setState),
-          detailWidget()
-        ],
-      );
-    });
+    return StreamBuilder(
+      stream: widget.actionRef!.snapshots(),
+      builder: (context, snapshot) {
+        return snapshot.connectionState == ConnectionState.waiting ?
+            Center(
+              child: Container(
+                height: 50,
+                width: 50,
+                  child: CircularProgressIndicator(),
+              ),
+            )
+            : StatefulBuilder(builder: (context, setState) {
+
+              Map<String, dynamic> options = snapshot.data!['options'];
+
+          return isLandscape(context) ? Row(
+            spacing: 10,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              chartTypeHandler(setState, options),
+              detailWidget(options)
+            ],
+          ) : Column(
+            spacing: 10,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              chartTypeHandler(setState, options),
+              detailWidget(options)
+            ],
+          );
+        });
+      }
+    );
   }
 
-  chartTypeHandler(void Function(void Function()) setState){
+  chartTypeHandler(void Function(void Function()) setState, Map<String, dynamic> options){
     if (chartType == 0) {
-      return pieChartWidget(setState);
+      return pieChartWidget(setState, options);
     } else {
-      return barChartWidget(setState);
+      return barChartWidget(setState, options);
     }
   }
 
-  barChartWidget(void Function(void Function()) setState) {
+  barChartWidget(void Function(void Function()) setState, Map<String, dynamic> options) {
     return Container(
       height: isLandscape(context) ? (MediaQuery.of(context).size.height) - 200 : 400,
       width:  isLandscape(context) ? (MediaQuery.of(context).size.width / 2) + 100 : null,
@@ -94,7 +115,7 @@ class _AdminResultState extends State<AdminResult> {
                   getTitlesWidget: (value, meta) {
                     return Text(
                       overflow: TextOverflow.ellipsis,
-                      'Option ${value.toInt() + 1}',
+                      options['opt$value']['name'],
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: chartColors[value.toInt()]
@@ -123,19 +144,19 @@ class _AdminResultState extends State<AdminResult> {
                     });
                   }
               ),
-              barGroups: barDataBuilder(selectedIndex)
+              barGroups: barDataBuilder(selectedIndex, options)
           )
       ),
     );
   }
 
-  pieChartWidget(void Function(void Function()) setState) {
+  pieChartWidget(void Function(void Function()) setState, Map<String, dynamic> options) {
     return Container(
       height: isLandscape(context) ? (MediaQuery.of(context).size.height) - 200 : 400,
       width:  isLandscape(context) ? (MediaQuery.of(context).size.width / 2) + 100 : null,
       child: PieChart(
           curve: Curves.linear,
-          duration: Duration(milliseconds: 250),
+          duration: Duration(milliseconds: 200),
           PieChartData(
               startDegreeOffset: 30,
               centerSpaceRadius: 0,
@@ -147,24 +168,24 @@ class _AdminResultState extends State<AdminResult> {
                     });
                   }
               ),
-              sections: pieDataBuilder(selectedIndex)
+              sections: pieDataBuilder(selectedIndex, options)
           )
-      ),
+      )
     );
   }
 
-  detailWidget(){
+  detailWidget(Map<String, dynamic> options){
     return selectedIndex == -1 ?
     Container(
       padding: EdgeInsets.all(20),
       height: isLandscape(context) ? 800 : 400,
       width: isLandscape(context) ? (MediaQuery.of(context).size.width / 2) - 200 : null,
       child: ListView.builder(
-          itemCount: 6,
+          itemCount: options.length,
           itemBuilder: (context, i) {
             return ListTile(
-              title: Text("President Option", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700)),
-              trailing: Text("${i * 20}", style: TextStyle(fontSize: 40, color: chartColors[i], fontWeight: FontWeight.w700)),
+              title: Text(options['opt$i']['name'], style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700)),
+              trailing: Text(options['opt$i']['votes'].toString(), style: TextStyle(fontSize: 40, color: chartColors[i], fontWeight: FontWeight.w700)),
             );
           }),
     )
@@ -176,9 +197,9 @@ class _AdminResultState extends State<AdminResult> {
               crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-            Text("Option ${selectedIndex+1}", overflow: TextOverflow.ellipsis ,style: TextStyle(fontSize: isLandscape(context) ? 80 : 40, fontWeight: FontWeight.w700, color: selectedIndex == - 1 ? Colors.black : chartColors[selectedIndex])),
+            Text(options['opt$selectedIndex']['name'], overflow: TextOverflow.ellipsis ,style: TextStyle(fontSize: isLandscape(context) ? 80 : 40, fontWeight: FontWeight.w700, color: chartColors[selectedIndex])),
             SizedBox(height: 20),
-            Text(selectedIndex == - 1 ? "" : "Votes: ${10 * selectedIndex}", overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: isLandscape(context) ? 80 : 40))
+            Text("Votes: ${options['opt$selectedIndex']['votes']}", overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: isLandscape(context) ? 80 : 40))
                   ],
                 ),
           ),
@@ -187,19 +208,22 @@ class _AdminResultState extends State<AdminResult> {
   }
 
 
-  pieDataBuilder(int selectedIndex) {
+  pieDataBuilder(int selectedIndex, Map<String, dynamic> options) {
     clearUsedColors();
     List<PieChartSectionData> data = [];
 
-    for (int i= 0; i < 6 ; i++){
+    final length = options.length;
+
+    for (int i= 0; i < length ; i++){
       chartColors.add(generateUniqueColor());
     }
 
-    for (int i = 0; i < 6; i++) {
+
+    for (int i = 0; i < length; i++) {
       data.add(
         PieChartSectionData(
-          value: i+1 *2,
-          title: '${i+1}',
+          value: options['opt$i']['votes'].toDouble(),
+          title: options['opt$i']['name'].toString(),
           titleStyle: selectedIndex == i ? TextStyle(fontSize: 40) : TextStyle(fontSize: 20),
           radius: selectedIndex == i ? isLandscape(context) ? 400 : 225 : isLandscape(context) ? 350 : 200,
           color: chartColors[i],
@@ -211,15 +235,18 @@ class _AdminResultState extends State<AdminResult> {
 
   }
 
-  barDataBuilder(int selectedIndex) {
+  barDataBuilder(int selectedIndex, Map<String, dynamic> options) {
     clearUsedColors();
     List<BarChartGroupData> data = [];
 
-    for (int i= 0; i < 6 ; i++){
+
+    final length = options.length;
+
+    for (int i= 0; i < length ; i++){
       chartColors.add(generateUniqueColor());
     }
 
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < length; i++) {
       data.add(
           BarChartGroupData(
               groupVertically: true,
@@ -229,7 +256,7 @@ class _AdminResultState extends State<AdminResult> {
                 borderRadius: BorderRadius.circular(0),
                   width: 50,
                   color: chartColors[i],
-                  toY: i+1.toDouble())
+                  toY: options['opt$i']['votes'])
             ]
           )
       );

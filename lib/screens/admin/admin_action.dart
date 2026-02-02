@@ -34,7 +34,15 @@ class _AdminActionState extends State<AdminAction> {
           child: StreamBuilder(
             stream: widget.actionRef!.snapshots(),
             builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-              return Column(
+              return snapshot.connectionState == ConnectionState.waiting ?
+                  Container(
+                    height: 50,
+                    width: 50,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                  : Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(snapshot.data['actionName'], style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700),),
@@ -50,6 +58,7 @@ class _AdminActionState extends State<AdminAction> {
                         if (snapshot.data['status'] == "Ongoing") {
                           if (timeDisplay < 0) {
 
+                            // Handle Poll Completion
                           }
 
                           Timer(Duration(seconds: 1), () {
@@ -92,7 +101,9 @@ class _AdminActionState extends State<AdminAction> {
           children: [
             status == "Ongoing" ? tappableCard("Pause Action", "Pause voting", Icons.pause, startAction) : tappableCard("Start Action", "Open voting", Icons.play_arrow, startAction),
             tappableCard("Live View", "See Results", Icons.pie_chart, () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => AdminResult()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => AdminResult(
+                actionRef: widget.actionRef,
+              )));
             })
           ],
         ),
