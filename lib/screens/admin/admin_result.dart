@@ -4,9 +4,9 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class AdminResult extends StatefulWidget {
-  const AdminResult({super.key, this.actionRef});
+  const AdminResult({super.key, this.actionRef, this.actionName});
 
-
+  final String? actionName;
   final DocumentReference<Map<String, dynamic>>? actionRef;
 
 
@@ -41,7 +41,7 @@ class _AdminResultState extends State<AdminResult> {
             });
           }, icon: Icon(Icons.bar_chart)),
         ],
-        title: Text("Action"),
+        title: Text(widget.actionName!),
       ),
       body: Padding(
         padding: EdgeInsets.all(20),

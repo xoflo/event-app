@@ -117,6 +117,7 @@ class _EventScreenState extends State<EventScreen> {
                           title: Text(snapshot.data!.docs[i].get("actionName")),
                           onTap: () {
                             Navigator.push(context, MaterialPageRoute(builder: (_) => AdminAction(
+                              actionName: snapshot.data!.docs[i].get("actionName"),
                                 actionRef: eventsCollection.doc(widget.eventDoc).collection('actions').doc(snapshot.data!.docs[i].id))));
                           },
                         );

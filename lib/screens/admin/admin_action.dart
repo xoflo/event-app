@@ -7,8 +7,9 @@ import 'package:flutter/material.dart';
 import '../../const.dart';
 
 class AdminAction extends StatefulWidget {
-  const AdminAction({super.key, this.actionRef});
+  const AdminAction({super.key, this.actionRef, this.actionName});
 
+  final String? actionName;
   final DocumentReference<Map<String, dynamic>>? actionRef;
 
   @override
@@ -24,7 +25,7 @@ class _AdminActionState extends State<AdminAction> {
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: secondaryColor,
-        title: Text('Action', style: TextStyle(fontWeight: FontWeight.w700),),
+        title: Text(widget.actionName!, style: TextStyle(fontWeight: FontWeight.w700),),
       ),
 
       body: Padding(
@@ -56,8 +57,10 @@ class _AdminActionState extends State<AdminAction> {
 
                       return StatefulBuilder(builder: (BuildContext context, void Function(void Function()) setState) {
                         if (snapshot.data['status'] == "Ongoing") {
-                          if (timeDisplay < 0) {
-
+                          if (timeDisplay <= 0) {
+                            widget.actionRef!.update({
+                              'status' : "Completed"
+                            });
                             // Handle Poll Completion
                           }
 
@@ -102,6 +105,7 @@ class _AdminActionState extends State<AdminAction> {
             status == "Ongoing" ? tappableCard("Pause Action", "Pause voting", Icons.pause, startAction) : tappableCard("Start Action", "Open voting", Icons.play_arrow, startAction),
             tappableCard("Live View", "See Results", Icons.pie_chart, () {
               Navigator.push(context, MaterialPageRoute(builder: (_) => AdminResult(
+                actionName: widget.actionName,
                 actionRef: widget.actionRef,
               )));
             })
