@@ -107,7 +107,7 @@ class _ClientScreenState extends State<ClientScreen> {
 
   eventCard() {
     return Card(
-      color: secondaryColor,
+      color: Colors.white,
       child: Container(
         height: 520,
         width: 400,
@@ -165,7 +165,7 @@ class _ClientScreenState extends State<ClientScreen> {
                             builder: (context) {
 
                               return finalChoice != null ? Text("Your Choice:\nOption $finalChoice", textAlign: TextAlign.center, style: TextStyle(fontSize: 40, overflow: TextOverflow.ellipsis ,fontWeight: FontWeight.w700)) : Material(
-                                color: secondaryColor,
+                                color: Colors.white,
                                 child: ListView.builder(
                                     itemCount: 8,
                                     itemBuilder: (context, i) {
