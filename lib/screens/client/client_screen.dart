@@ -56,8 +56,10 @@ class _ClientScreenState extends State<ClientScreen> {
     final snapshot = await docRef.get();
 
     if (!snapshot.exists) {
-      await docRef.set({'uid': deviceId});
-      return;
+      await docRef.set({
+        'uid': deviceId,
+        'activeEvent' : ""
+      });
     }
 
     return snapshot;
@@ -136,7 +138,7 @@ class _ClientScreenState extends State<ClientScreen> {
             padding: EdgeInsets.all(20),
                 child: StreamBuilder(
                   stream: eventsCollection.doc(userRef.get('activeEvent')).snapshots(),
-                  builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                  builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> snapshot) {
                     return snapshot.connectionState == ConnectionState.waiting ? Center(
                       child: Container(
                         height: 50,
@@ -145,12 +147,12 @@ class _ClientScreenState extends State<ClientScreen> {
                       ),
                     ) : Column(
                       children: [
-                        Text(snapshot.data.get('eventName'), style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: inverseColor)),
-                        Text("Date: ${DateFormat.yMMMd().format(snapshot.data.get('eventCreated').toDate()) }  |  Participants: ${snapshot.data.get('participants')}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: inverseColor)),
+                        Text(snapshot.data!.get('eventName'), style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: inverseColor)),
+                        Text("Date: ${DateFormat.yMMMd().format(snapshot.data!.get('eventCreated').toDate()) }  |  Participants: ${snapshot.data!.get('participants')}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: inverseColor)),
                         SizedBox(height: 10),
                         Text("Current Activity", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: inverseColor)),
                         SizedBox(height: 10),
-                        activityHandler(2)
+                        activityHandler(snapshot.data!.get('activeAction') == "" ? 1 : 2, snapshot.data!)
                       ],
                     );
                   },
@@ -163,7 +165,7 @@ class _ClientScreenState extends State<ClientScreen> {
   }
 
 
-  activityHandler(int i) {
+  activityHandler(int i, DocumentSnapshot<Map<String, dynamic>> event) {
 
     if (i == 1) {
       return Container(
@@ -175,7 +177,7 @@ class _ClientScreenState extends State<ClientScreen> {
     if (i == 2) {
       return Column(
         children: [
-          Text("Poll: President", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: inverseColor)),
+          Text("Poll: ${event.get('eventName')}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: inverseColor)),
           SizedBox(height: 10),
           Text("1:59", style: TextStyle(fontSize: 30)),
           Text("Time Remaining", style: TextStyle(fontSize: 15)),
