@@ -7,9 +7,10 @@ import 'package:flutter/material.dart';
 import '../../const.dart';
 
 class AdminAction extends StatefulWidget {
-  const AdminAction({super.key, this.actionRef, this.actionName});
+  const AdminAction({super.key, this.eventRef, this.actionRef, this.actionName});
 
   final String? actionName;
+  final DocumentReference<Map<String, dynamic>>? eventRef;
   final DocumentReference<Map<String, dynamic>>? actionRef;
 
   @override
@@ -117,20 +118,45 @@ class _AdminActionState extends State<AdminAction> {
 
   startAction() async {
 
-    loadingWidget(context);
 
-    final status = await widget.actionRef!.get().then((value) {
-      return value.get('status');
+    late String status;
+    late String actionName;
+
+    await widget.actionRef!.get().then((value) {
+      status = value.get('status');
+      actionName = value.get('actionName');
     });
 
+    loadingWidget(context);
+
     if (status == "Preparing") {
+
+      if (await widget.eventRef!.get().then((value) {
+        return value.get('activeAction');
+      }) != "") {
+        Navigator.pop(context);
+        snackBarWidget(context, "There is a current action active.");
+        return;
+      }
+
+
       await widget.actionRef!.update({
         'startTime' : await getNetworkTime(),
         'status' : "Ongoing"
       });
 
+      await widget.eventRef!.update({
+        'activeAction' : actionName
+      });
+
+      Navigator.pop(context);
+
 
     } else {
+
+      await widget.eventRef!.update({
+        'activeAction' : ""
+      });
 
       final Timestamp recentStartTime = await widget.actionRef!.get().then((value) {
         return value.get('startTime');
@@ -148,10 +174,10 @@ class _AdminActionState extends State<AdminAction> {
         'durationInSeconds' : duration - differenceInSeconds
       });
 
+      Navigator.pop(context);
+
     }
 
-
-    Navigator.pop(context);
 
 
   }
