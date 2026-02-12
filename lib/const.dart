@@ -8,7 +8,7 @@ import 'package:ntp_dart/models/accurate_time.dart';
 import 'dart:math' as math;
 import 'package:ntp_dart/models/libraries/ntp_io.dart';
 
-final primaryColor = Color(0xffeb5e28);
+final primaryColor = Color(0xff606c38);
 final secondaryColor = Color(0xffccc5b9);
 final backgroundColor = Color(0xfffffcf2);
 final tertiaryColor = Color(0xff403d39);

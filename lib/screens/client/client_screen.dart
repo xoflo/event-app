@@ -1,4 +1,5 @@
 import 'package:barcode_widget/barcode_widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:event_app/hive.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,22 +25,41 @@ class _ClientScreenState extends State<ClientScreen> {
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: primaryColor,
-        title: Text("Event App", style: TextStyle(color: inverseColor, fontWeight: FontWeight.w800, fontSize: 24)),
+        title: Text("Event App", style: TextStyle(color: backgroundColor, fontWeight: FontWeight.w800, fontSize: 24)),
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Padding(
-          padding: const EdgeInsets.all(30.0),
-          child: Column(
-            children: [
-              actionRow(),
-              SizedBox(height: 10),
-              eventList()
-            ],
-          ),
-        ),
+      body: FutureBuilder(
+        future: generateUID(),
+        builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> userRef) {
+          return userRef.data == null ? Center(child: CircularProgressIndicator()) : SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Padding(
+              padding: const EdgeInsets.all(30.0),
+              child: Column(
+                children: [
+                  actionRow(),
+                  SizedBox(height: 10),
+                  eventList(userRef.data!)
+                ],
+              ),
+            ),
+          );
+        } ,
       ),
     );
+  }
+
+  generateUID() async {
+    final deviceId = await DeviceIdService.getOrCreateDeviceId();
+    final docRef = firebaseFirestore.collection('participants').doc(deviceId);
+
+    final snapshot = await docRef.get();
+
+    if (!snapshot.exists) {
+      await docRef.set({'uid': deviceId});
+      return;
+    }
+
+    return snapshot;
   }
 
   actionRow() {
@@ -94,37 +114,48 @@ class _ClientScreenState extends State<ClientScreen> {
     ));
   }
 
-  eventList() {
+  eventList(DocumentSnapshot<Map<String, dynamic>> userRef) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text("Active Event", style: TextStyle(color: inverseColor, fontSize: 24, fontWeight: FontWeight.w700),),
-        SizedBox(height: 10,),
-        eventCard()
+        SizedBox(height: 10),
+        userRef.get('activeEvent') == "" ? noEventCard() : eventCard(userRef)
       ],
     );
   }
 
-  eventCard() {
+  eventCard(DocumentSnapshot<Map<String, dynamic>> userRef) {
     return Card(
       color: Colors.white,
-      child: Container(
+      child: SizedBox(
         height: 520,
         width: 400,
         child: Padding(
             padding: EdgeInsets.all(20),
-                child: Column(
-            children: [
-              Text("Elections 2025", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: inverseColor)),
-              Text("Date: 12/12/2023  |  Participants: 888", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: inverseColor)),
-              SizedBox(height: 10),
-              Text("Current Activity", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: inverseColor)),
-              SizedBox(height: 10),
-              activityHandler(2)
+                child: StreamBuilder(
+                  stream: eventsCollection.doc(userRef.get('activeEvent')).snapshots(),
+                  builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                    return snapshot.connectionState == ConnectionState.waiting ? Center(
+                      child: Container(
+                        height: 50,
+                        width: 50,
+                        child: CircularProgressIndicator(),
+                      ),
+                    ) : Column(
+                      children: [
+                        Text("Elections 2025", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: inverseColor)),
+                        Text("Date: 12/12/2023  |  Participants: 888", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: inverseColor)),
+                        SizedBox(height: 10),
+                        Text("Current Activity", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: inverseColor)),
+                        SizedBox(height: 10),
+                        activityHandler(2)
+                      ],
+                    );
+                  },
+                ),
 
 
-            ],
-        ),
         ),
       ),
     );
@@ -163,7 +194,6 @@ class _ClientScreenState extends State<ClientScreen> {
                         height: 160,
                         child: Builder(
                             builder: (context) {
-
                               return finalChoice != null ? Text("Your Choice:\nOption $finalChoice", textAlign: TextAlign.center, style: TextStyle(fontSize: 40, overflow: TextOverflow.ellipsis ,fontWeight: FontWeight.w700)) : Material(
                                 color: Colors.white,
                                 child: ListView.builder(
@@ -177,7 +207,6 @@ class _ClientScreenState extends State<ClientScreen> {
                                           ),
                                           selected: index.contains(i),
                                           selectedTileColor: primaryColor,
-                                
                                           hoverColor: primaryColor,
                                           title: Text("Option $i", style: TextStyle(color: index.contains(i) ? inverseColor : inverseColor)),
                                           onTap: () {
@@ -257,7 +286,7 @@ class _ClientScreenState extends State<ClientScreen> {
 
   noEventCard() {
     return Card(
-      color: secondaryColor,
+      color: Colors.white,
       child: Container(
         height: 300,
         width: 400,
@@ -267,10 +296,10 @@ class _ClientScreenState extends State<ClientScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(Icons.event_busy, size: 60),
+              Icon(Icons.event, size: 60),
               SizedBox(height: 10),
               Text("No Active Event", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: inverseColor)),
-              Text("Join an Event using your QR", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: inverseColor))
+              Text("Get your QR Scanned\nat Event Gate to Join", textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: inverseColor))
 
 
             ],

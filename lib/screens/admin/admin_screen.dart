@@ -69,6 +69,10 @@ class _AdminScreenState extends State<AdminScreen> {
           ),
         ),
         actions: [
+
+          TextButton(onPressed: () {
+            controller.clear();
+          }, child: Text("Clear")),
           TextButton(onPressed: () {
             addEventFirebase(controller.text);
           }, child: Text("Save"))
@@ -80,16 +84,27 @@ class _AdminScreenState extends State<AdminScreen> {
   addEventFirebase(String eventName) async {
 
     loadingWidget(context);
-    await eventsCollection.add(
-        Event(
-            eventName: eventName,
-            eventCreated: DateTime.now(),
-            participants: 0,
-            status: "Preparing"
-        ).toFirebase()
-    );
-    snackBarWidget(context, "Event Added");
-    Navigator.pop(context);
+
+    final snapshot = await eventsCollection.doc(eventName).get();
+
+    if (!snapshot.exists) {
+      await eventsCollection.doc(eventName).set(
+          Event(
+              eventName: eventName,
+              eventCreated: DateTime.now(),
+              participants: 0,
+              status: "Preparing"
+          ).toFirebase()
+      );
+      snackBarWidget(context, "Event Added");
+      Navigator.pop(context);
+      Navigator.pop(context);
+    } else {
+      snackBarWidget(context, "Event Already Exists");
+      Navigator.pop(context);
+      Navigator.pop(context);
+    }
+
   }
 
   eventList() {
