@@ -53,7 +53,6 @@ class _EventScreenState extends State<EventScreen> {
                     Text(snapshot.data['eventName'], style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700),),
                     Text("Status: ${snapshot.data['status']}"),
                     Text("${DateFormat().add_yMMMMd().format(DateTime.now())} ${DateFormat().add_jm().format(DateTime.now())}"),
-
                     Text("Total Participants: ${snapshot.data['participants']}"),
                     Padding(
                       padding: const EdgeInsets.all(15.0),
@@ -114,13 +113,13 @@ class _EventScreenState extends State<EventScreen> {
                       itemCount: snapshot.data!.docs.length,
                       itemBuilder: (context, i) {
                         return ListTile(
-                          title: Text(snapshot.data!.docs[i].get("actionName")),
+                          title: Text(snapshot.data!.docs[i].get("actionName"), style: TextStyle(fontSize: 20)),
                           onTap: () {
                             Navigator.push(context, MaterialPageRoute(builder: (_) => AdminAction(
                               actionName: snapshot.data!.docs[i].get("actionName"),
                                 actionRef: eventsCollection.doc(widget.eventDoc).collection('actions').doc(snapshot.data!.docs[i].id))));
                           },
-                          trailing: Text("${snapshot.data!.docs[i].get("status")}", style: TextStyle(fontSize: 20)),
+                          trailing: Text("${snapshot.data!.docs[i].get("status")}", style: TextStyle(fontSize: 15)),
                         );
                       }),
                 );;
@@ -275,6 +274,11 @@ class _EventScreenState extends State<EventScreen> {
       actions: [
         TextButton(onPressed: () async {
 
+          if (options.isEmpty){
+            snackBarWidget(context, "There must be two or more options to add a poll");
+            return;
+          }
+
           final hoursInSeconds = int.parse(hours.text.isEmpty ? "0" : hours.text);
           final minutesInSeconds = int.parse(minutes.text.isEmpty ? "0" : minutes.text);
           final secondsInSeconds = int.parse(seconds.text.isEmpty ? "0" : seconds.text);
@@ -285,18 +289,27 @@ class _EventScreenState extends State<EventScreen> {
 
           final optionMap = optionMapper(options);
 
-          await eventsCollection.doc(widget.eventDoc).collection('actions').add({
-            'actionName' : pollName.text,
-            'durationInSeconds' : totalSeconds,
-            'durationTotal' : totalSeconds,
-            'options' : optionMap,
-            'status' : "Preparing",
-            'startTime' : null
-          });
+          final snapshot = await eventsCollection.doc(widget.eventDoc).collection('actions').doc(pollName.text).get();
 
-          Navigator.pop(context);
-          Navigator.pop(context);
-          snackBarWidget(context, "Action Added");
+          if (!snapshot.exists) {
+            await eventsCollection.doc(widget.eventDoc).collection('actions').doc(pollName.text).set({
+              'actionName' : pollName.text,
+              'durationInSeconds' : totalSeconds,
+              'durationTotal' : totalSeconds,
+              'options' : optionMap,
+              'status' : "Preparing",
+              'startTime' : null
+            });
+
+
+            Navigator.pop(context);
+            Navigator.pop(context);
+            snackBarWidget(context, "Action Added");
+          } else {
+            Navigator.pop(context);
+            snackBarWidget(context, "This action already exists");
+          }
+
 
         }, child: Text("Save Poll"))
       ],

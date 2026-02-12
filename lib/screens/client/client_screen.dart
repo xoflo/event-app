@@ -4,6 +4,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:event_app/hive.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:uuid/uuid.dart';
 import '../../const.dart';
@@ -144,8 +145,8 @@ class _ClientScreenState extends State<ClientScreen> {
                       ),
                     ) : Column(
                       children: [
-                        Text("Elections 2025", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: inverseColor)),
-                        Text("Date: 12/12/2023  |  Participants: 888", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: inverseColor)),
+                        Text(snapshot.data.get('eventName'), style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: inverseColor)),
+                        Text("Date: ${DateFormat.yMMMd().format(snapshot.data.get('eventCreated').toDate()) }  |  Participants: ${snapshot.data.get('participants')}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: inverseColor)),
                         SizedBox(height: 10),
                         Text("Current Activity", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: inverseColor)),
                         SizedBox(height: 10),
@@ -194,7 +195,12 @@ class _ClientScreenState extends State<ClientScreen> {
                         height: 160,
                         child: Builder(
                             builder: (context) {
-                              return finalChoice != null ? Text("Your Choice:\nOption $finalChoice", textAlign: TextAlign.center, style: TextStyle(fontSize: 40, overflow: TextOverflow.ellipsis ,fontWeight: FontWeight.w700)) : Material(
+                              return finalChoice != null ? Column(
+                                children: [
+                                  Text("You Picked:", textAlign: TextAlign.center, style: TextStyle(fontSize: 30, overflow: TextOverflow.ellipsis ,fontWeight: FontWeight.w500)),
+                                  Text("Option $finalChoice", textAlign: TextAlign.center, style: TextStyle(fontSize: 40, overflow: TextOverflow.ellipsis ,fontWeight: FontWeight.w700)),
+                                ],
+                              ) : Material(
                                 color: Colors.white,
                                 child: ListView.builder(
                                     itemCount: 8,
