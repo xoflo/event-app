@@ -248,6 +248,8 @@ class _ClientScreenState extends State<ClientScreen> {
                   String? finalChoice;
                   List<int> index = [];
 
+                  final Map<String, dynamic> options =  action.data!.get('options');
+
                   return StatefulBuilder(
                     builder: (BuildContext context, void Function(void Function()) setState) {
                       return Column(
@@ -265,7 +267,7 @@ class _ClientScreenState extends State<ClientScreen> {
                                   ) : Material(
                                     color: Colors.white,
                                     child: ListView.builder(
-                                        itemCount: 8,
+                                        itemCount: options.length,
                                         itemBuilder: (context, i) {
                                           return Padding(
                                             padding: const EdgeInsets.fromLTRB(0, 1, 0, 1),
@@ -276,7 +278,7 @@ class _ClientScreenState extends State<ClientScreen> {
                                               selected: index.contains(i),
                                               selectedTileColor: primaryColor,
                                               hoverColor: primaryColor,
-                                              title: Text("Option $i", style: TextStyle(color: index.contains(i) ? inverseColor : inverseColor)),
+                                              title: Text(options['opt$i']['name'], style: TextStyle(color: index.contains(i) ? inverseColor : inverseColor)),
                                               onTap: () {
                                                 index.clear();
                                                 setState(() {
@@ -292,7 +294,7 @@ class _ClientScreenState extends State<ClientScreen> {
                           ),
 
                           SizedBox(height: 15),
-                          Text("${index.isEmpty ? finalChoice == null ? "No Choice" : "" : "Option ${index.first}"}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                          Text("${index.isEmpty ? finalChoice == null ? "No Choice" : "" : options['opt${index.first}']['name']}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                           index.isEmpty ? SizedBox() : IconButton(
                             onPressed: () {
                               showDialog(context: context, builder: (_) => AlertDialog(
@@ -304,7 +306,7 @@ class _ClientScreenState extends State<ClientScreen> {
                                     children: [
                                       Text("Your Selected:", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                                       SizedBox(height: 10),
-                                      Text("Option ${index.first}", overflow: TextOverflow.ellipsis ,style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700)),
+                                      Text(options['opt${index.first}']['name'], overflow: TextOverflow.ellipsis ,style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700)),
                                       SizedBox(height: 10),
                                       Text("THIS ACTION CANNOT BE UNDONE", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.grey)),
                                       SizedBox(height: 15),
