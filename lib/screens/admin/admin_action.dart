@@ -52,30 +52,53 @@ class _AdminActionState extends State<AdminAction> {
                   Text("Duration: ${formatSeconds(snapshot.data['durationTotal'])}"),
                   // Timer Widget Below:
 
-                  Builder(
-                    builder: (context) {
-                      int timeDisplay = snapshot.data['durationInSeconds'];
+                  StreamBuilder(
+                    stream: widget.actionRef!.snapshots(),
+                    builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
 
-                      return StatefulBuilder(builder: (BuildContext context, void Function(void Function()) setState) {
-                        if (snapshot.data['status'] == "Ongoing") {
-                          if (timeDisplay <= 0) {
-                            widget.actionRef!.update({
-                              'status' : "Completed"
+                      return snapshot.connectionState == ConnectionState.waiting
+                          ? SizedBox()
+                          : StatefulBuilder(builder: (BuildContext context,
+                          void Function(void Function()) setState) {
+
+                        int timeDisplay = snapshot.data['durationInSeconds'];
+
+
+                        return FutureBuilder(
+                            future: getNetworkTime(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<DateTime> utcTime) {
+                              if (snapshot.data['status'] == "Ongoing") {
+                                final startTime = snapshot.data['startTime'];
+                                final differenceInSeconds = utcTime.data!
+                                    .difference(startTime.toDate())
+                                    .inSeconds;
+                                timeDisplay = snapshot.data['durationInSeconds'] -
+                                    differenceInSeconds;
+
+                                if (timeDisplay <= 0) {
+                                  widget.actionRef!.update({'status': "Completed"});
+                                  // Handle Poll Completion
+                                }
+
+                                Timer(Duration(seconds: 1), () {
+                                  setState(() {
+                                    timeDisplay--;
+                                  });
+                                });
+                              }
+
+                              return snapshot.connectionState == ConnectionState.waiting
+                                  ? Container(
+                                  height: 10,
+                                  width: 50,
+                                  child: LinearProgressIndicator())
+                                  : Text("${secondsToDisplay(timeDisplay)}",
+                                  style: TextStyle(
+                                      fontSize: 40, fontWeight: FontWeight.w700));
                             });
-                            // Handle Poll Completion
-                          }
-
-                          Timer(Duration(seconds: 1), () {
-                            setState(() {
-                              timeDisplay--;
-                            });
-                          });
-                        }
-
-
-                        return Text("Time Remaining: ${secondsToDisplay(timeDisplay)}");
                       });
-                    }
+                    },
                   ),
 
 

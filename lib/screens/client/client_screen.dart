@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -159,7 +161,7 @@ class _ClientScreenState extends State<ClientScreen> {
                         Text(snapshot.data!.get('eventName'), style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: inverseColor)),
                         Text("Date: ${DateFormat.yMMMd().format(snapshot.data!.get('eventCreated').toDate()) }  |  Participants: ${snapshot.data!.get('participants')}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: inverseColor)),
                         SizedBox(height: 10),
-                        Text("Current Activity", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: inverseColor)),
+                        Text("Current Activity", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: inverseColor)),
                         SizedBox(height: 10),
                         activityHandler(snapshot.data!.get('activeAction') == "" ? 1 : 2, snapshot.data!)
                       ],
@@ -184,118 +186,169 @@ class _ClientScreenState extends State<ClientScreen> {
     }
 
     if (i == 2) {
-      return Column(
-        children: [
-          Text("Poll: ${event.get('eventName')}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: inverseColor)),
-          SizedBox(height: 10),
-          Text("1:59", style: TextStyle(fontSize: 30)),
-          Text("Time Remaining", style: TextStyle(fontSize: 15)),
-          SizedBox(height: 10),
-          Builder(
-            builder: (context) {
+      return StreamBuilder(
+        stream: eventsCollection.doc(event.get('eventName')).collection('actions').doc(event.get('activeAction')).snapshots(),
+        builder: (context, action) {
+          return action.connectionState == ConnectionState.waiting ? Center(
+            child: Container(
+              height: 50,
+              width: 50,
+              child: CircularProgressIndicator(),
+            ),
+          ) : Column(
+            children: [
+              Text("Poll: ${action.data!.get('actionName')}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: inverseColor)),
+              SizedBox(height: 10),
+              Text("Time Remaining", style: TextStyle(fontSize: 15)),
+               StatefulBuilder(
+                  builder: (BuildContext context,
+                  void Function(void Function()) setState) {
 
-              String? finalChoice;
-              List<int> index = [];
+                int timeDisplay = action.data!.get('durationInSeconds');
 
-              return StatefulBuilder(
-                builder: (BuildContext context, void Function(void Function()) setState) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        height: 160,
-                        child: Builder(
-                            builder: (context) {
-                              return finalChoice != null ? Column(
-                                children: [
-                                  Text("You Picked:", textAlign: TextAlign.center, style: TextStyle(fontSize: 30, overflow: TextOverflow.ellipsis ,fontWeight: FontWeight.w500)),
-                                  Text("Option $finalChoice", textAlign: TextAlign.center, style: TextStyle(fontSize: 40, overflow: TextOverflow.ellipsis ,fontWeight: FontWeight.w700)),
-                                ],
-                              ) : Material(
-                                color: Colors.white,
-                                child: ListView.builder(
-                                    itemCount: 8,
-                                    itemBuilder: (context, i) {
-                                      return Padding(
-                                        padding: const EdgeInsets.fromLTRB(0, 1, 0, 1),
-                                        child: ListTile(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12)
-                                          ),
-                                          selected: index.contains(i),
-                                          selectedTileColor: primaryColor,
-                                          hoverColor: primaryColor,
-                                          title: Text("Option $i", style: TextStyle(color: index.contains(i) ? inverseColor : inverseColor)),
-                                          onTap: () {
-                                            index.clear();
-                                            setState(() {
-                                              index.add(i);
-                                            });
-                                          },
-                                        ),
-                                      );
-                                    }),
-                              );
-                            }
-                        ),
-                      ),
+                return FutureBuilder(
+                    future: getNetworkTime(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<DateTime> utcTime) {
+                      if (action.data!.get('status') == "Ongoing") {
+                        final startTime = action.data!.get('startTime');
+                        final differenceInSeconds = utcTime.data!
+                            .difference(startTime.toDate())
+                            .inSeconds;
+                        timeDisplay = action.data!.get('durationInSeconds') -
+                            differenceInSeconds;
 
-                      SizedBox(height: 15),
-                      Text("${index.isEmpty ? finalChoice == null ? "No Choice" : "" : "Option ${index.first}"}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-                      index.isEmpty ? SizedBox() : IconButton(
-                        onPressed: () {
-                          showDialog(context: context, builder: (_) => AlertDialog(
-                            backgroundColor: backgroundColor,
-                            content: Container(
-                              height: 150,
-                              width: 150,
-                              child: Column(
-                                children: [
-                                  Text("Your Selected:", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-                                  SizedBox(height: 10),
-                                  Text("Option ${index.first}", overflow: TextOverflow.ellipsis ,style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700)),
-                                  SizedBox(height: 10),
-                                  Text("THIS ACTION CANNOT BE UNDONE", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.grey)),
-                                  SizedBox(height: 15),
-                                  ElevatedButton(
-                                      style: ButtonStyle(
-                                          foregroundColor: WidgetStateProperty.all(inverseColor),
-                                          backgroundColor: WidgetStateProperty.all(primaryColor)),
+                        if (timeDisplay <= 0) {
+                          action.data!.reference.update({'status': "Completed"});
+                          // Handle Poll Completion
+                        }
 
-                                      onPressed: () {
-                                    Navigator.pop(context);
-                                    setState(() {
-                                      finalChoice = index.first.toString();
-                                      index.clear();
-                                    });
-                                  }, child: Text("Submit"))
+                        Timer(Duration(seconds: 1), () {
+                          setState(() {
+                            timeDisplay--;
+                          });
+                        });
+                      }
 
-                                ],
-                              ),
-                            ),
-                          ));
-                        },
-                        icon: Icon(
-                            color: primaryColor,
-                            Icons.check)),
+                      return action.connectionState == ConnectionState.waiting
+                          ? Container(
+                          height: 10,
+                          width: 50,
+                          child: LinearProgressIndicator())
+                          : Text("${secondsToDisplay(timeDisplay)}",
+                          style: TextStyle(
+                              fontSize: 30, fontWeight: FontWeight.w700));
+                    });
+              }),
 
-                      finalChoice != null ? Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+              SizedBox(height: 10),
+              Builder(
+                builder: (context) {
+
+                  String? finalChoice;
+                  List<int> index = [];
+
+                  return StatefulBuilder(
+                    builder: (BuildContext context, void Function(void Function()) setState) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text("This is saved and recorded", style: TextStyle(color: primaryColor, fontSize: 20, fontStyle: FontStyle.italic)),
-                          SizedBox(width: 10),
-                          Icon(Icons.check_circle, color: primaryColor)
+                          Container(
+                            height: 160,
+                            child: Builder(
+                                builder: (context) {
+                                  return finalChoice != null ? Column(
+                                    children: [
+                                      Text("You Picked:", textAlign: TextAlign.center, style: TextStyle(fontSize: 30, overflow: TextOverflow.ellipsis ,fontWeight: FontWeight.w500)),
+                                      Text("Option $finalChoice", textAlign: TextAlign.center, style: TextStyle(fontSize: 40, overflow: TextOverflow.ellipsis ,fontWeight: FontWeight.w700)),
+                                    ],
+                                  ) : Material(
+                                    color: Colors.white,
+                                    child: ListView.builder(
+                                        itemCount: 8,
+                                        itemBuilder: (context, i) {
+                                          return Padding(
+                                            padding: const EdgeInsets.fromLTRB(0, 1, 0, 1),
+                                            child: ListTile(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(12)
+                                              ),
+                                              selected: index.contains(i),
+                                              selectedTileColor: primaryColor,
+                                              hoverColor: primaryColor,
+                                              title: Text("Option $i", style: TextStyle(color: index.contains(i) ? inverseColor : inverseColor)),
+                                              onTap: () {
+                                                index.clear();
+                                                setState(() {
+                                                  index.add(i);
+                                                });
+                                              },
+                                            ),
+                                          );
+                                        }),
+                                  );
+                                }
+                            ),
+                          ),
+
+                          SizedBox(height: 15),
+                          Text("${index.isEmpty ? finalChoice == null ? "No Choice" : "" : "Option ${index.first}"}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                          index.isEmpty ? SizedBox() : IconButton(
+                            onPressed: () {
+                              showDialog(context: context, builder: (_) => AlertDialog(
+                                backgroundColor: backgroundColor,
+                                content: Container(
+                                  height: 150,
+                                  width: 150,
+                                  child: Column(
+                                    children: [
+                                      Text("Your Selected:", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                                      SizedBox(height: 10),
+                                      Text("Option ${index.first}", overflow: TextOverflow.ellipsis ,style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700)),
+                                      SizedBox(height: 10),
+                                      Text("THIS ACTION CANNOT BE UNDONE", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.grey)),
+                                      SizedBox(height: 15),
+                                      ElevatedButton(
+                                          style: ButtonStyle(
+                                              foregroundColor: WidgetStateProperty.all(inverseColor),
+                                              backgroundColor: WidgetStateProperty.all(primaryColor)),
+
+                                          onPressed: () {
+                                        Navigator.pop(context);
+                                        setState(() {
+                                          finalChoice = index.first.toString();
+                                          index.clear();
+                                        });
+                                      }, child: Text("Submit"))
+
+                                    ],
+                                  ),
+                                ),
+                              ));
+                            },
+                            icon: Icon(
+                                color: primaryColor,
+                                Icons.check)),
+
+                          finalChoice != null ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("This is saved and recorded", style: TextStyle(color: primaryColor, fontSize: 20, fontStyle: FontStyle.italic)),
+                              SizedBox(width: 10),
+                              Icon(Icons.check_circle, color: primaryColor)
+                            ],
+                          ) : Text("")
+
                         ],
-                      ) : Text("")
+                      );
+                    },
 
-                    ],
                   );
-                },
-
-              );
-            }
-          ),
-        ],
+                }
+              ),
+            ],
+          );
+        }
       );
     }
   }

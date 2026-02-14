@@ -44,6 +44,9 @@ class _AdminResultState extends State<AdminResult> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text("Time Remaining : ", style: TextStyle(fontSize: 30)),
+
+          // Active Time Widget Below:
+
           StreamBuilder(
             stream: widget.actionRef!.snapshots(),
             builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
