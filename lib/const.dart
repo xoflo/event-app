@@ -128,6 +128,7 @@ loadingWidget(BuildContext context) {
       height: 100,
       width: 100,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
             height: 50,

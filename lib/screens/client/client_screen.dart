@@ -31,7 +31,7 @@ class _ClientScreenState extends State<ClientScreen> {
         title: Text("Event App", style: TextStyle(color: backgroundColor, fontWeight: FontWeight.w800, fontSize: 24)),
       ),
       body: FutureBuilder(
-        future: generateUID(),
+        future: generateUID(1),
         builder: (BuildContext context, AsyncSnapshot<Stream<DocumentSnapshot<Map<String, dynamic>>>> userRef) {
           return userRef.data == null ? Center(child: CircularProgressIndicator()) : SingleChildScrollView(
             scrollDirection: Axis.vertical,
@@ -60,7 +60,7 @@ class _ClientScreenState extends State<ClientScreen> {
     );
   }
 
-  generateUID() async {
+  generateUID(int i) async {
     final deviceId = await DeviceIdService.getOrCreateDeviceId();
     final docRef = firebaseFirestore.collection('participants').doc(deviceId);
 
@@ -69,12 +69,14 @@ class _ClientScreenState extends State<ClientScreen> {
     if (!snapshot.exists) {
       await docRef.set({
         'uid': deviceId,
-        'activeEvent' : ""
+        'activeEvent' : "",
+        'voteStatus' : ""
       });
     }
 
-    return docRef.snapshots();
+    return i == 1 ? docRef.snapshots() : docRef;
   }
+
 
   actionRow() {
     return Row(
@@ -163,7 +165,7 @@ class _ClientScreenState extends State<ClientScreen> {
                         SizedBox(height: 10),
                         Text("Current Activity", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: inverseColor)),
                         SizedBox(height: 10),
-                        activityHandler(snapshot.data!.get('activeAction') == "" ? 1 : 2, snapshot.data!)
+                        activityHandler(snapshot.data!.get('activeAction') == "" ? 1 : 2, snapshot.data!, userRef)
                       ],
                     );
                   },
@@ -176,7 +178,7 @@ class _ClientScreenState extends State<ClientScreen> {
   }
 
 
-  activityHandler(int i, DocumentSnapshot<Map<String, dynamic>> event) {
+  activityHandler(int i, DocumentSnapshot<Map<String, dynamic>> event, DocumentSnapshot<Map<String, dynamic>> userRef) {
 
     if (i == 1) {
       return Container(
@@ -245,9 +247,9 @@ class _ClientScreenState extends State<ClientScreen> {
               Builder(
                 builder: (context) {
 
-                  String? finalChoice;
-                  List<int> index = [];
 
+                  List<int> index = [];
+                  String? finalChoice = userRef.get('voteStatus');
                   final Map<String, dynamic> options =  action.data!.get('options');
 
                   return StatefulBuilder(
@@ -259,10 +261,10 @@ class _ClientScreenState extends State<ClientScreen> {
                             height: 160,
                             child: Builder(
                                 builder: (context) {
-                                  return finalChoice != null ? Column(
+                                  return finalChoice != "" ? Column(
                                     children: [
                                       Text("You Picked:", textAlign: TextAlign.center, style: TextStyle(fontSize: 30, overflow: TextOverflow.ellipsis ,fontWeight: FontWeight.w500)),
-                                      Text("Option $finalChoice", textAlign: TextAlign.center, style: TextStyle(fontSize: 40, overflow: TextOverflow.ellipsis ,fontWeight: FontWeight.w700)),
+                                      Text("$finalChoice", textAlign: TextAlign.center, style: TextStyle(fontSize: 40, overflow: TextOverflow.ellipsis ,fontWeight: FontWeight.w700)),
                                     ],
                                   ) : Material(
                                     color: Colors.white,
@@ -294,7 +296,7 @@ class _ClientScreenState extends State<ClientScreen> {
                           ),
 
                           SizedBox(height: 15),
-                          Text("${index.isEmpty ? finalChoice == null ? "No Choice" : "" : options['opt${index.first}']['name']}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                          Text("${index.isEmpty ? finalChoice == "" ? "No Choice" : "" : options['opt${index.first}']['name']}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                           index.isEmpty ? SizedBox() : IconButton(
                             onPressed: () {
                               showDialog(context: context, builder: (_) => AlertDialog(
@@ -304,7 +306,7 @@ class _ClientScreenState extends State<ClientScreen> {
                                   width: 150,
                                   child: Column(
                                     children: [
-                                      Text("Your Selected:", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                                      Text("You Selected:", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                                       SizedBox(height: 10),
                                       Text(options['opt${index.first}']['name'], overflow: TextOverflow.ellipsis ,style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700)),
                                       SizedBox(height: 10),
@@ -315,12 +317,18 @@ class _ClientScreenState extends State<ClientScreen> {
                                               foregroundColor: WidgetStateProperty.all(inverseColor),
                                               backgroundColor: WidgetStateProperty.all(primaryColor)),
 
-                                          onPressed: () {
-                                        Navigator.pop(context);
-                                        setState(() {
-                                          finalChoice = index.first.toString();
-                                          index.clear();
-                                        });
+                                          onPressed: () async {
+                                            Navigator.pop(context);
+
+
+
+                                            await userRef.reference.update({
+                                              'voteStatus' : options['opt${index.first}']['name'].toString()
+                                            });
+
+                                            Navigator.pop(context);
+                                            index.clear();
+
                                       }, child: Text("Submit"))
 
                                     ],
@@ -332,7 +340,7 @@ class _ClientScreenState extends State<ClientScreen> {
                                 color: primaryColor,
                                 Icons.check)),
 
-                          finalChoice != null ? Row(
+                          finalChoice != "" ? Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text("This is saved and recorded", style: TextStyle(color: primaryColor, fontSize: 20, fontStyle: FontStyle.italic)),
