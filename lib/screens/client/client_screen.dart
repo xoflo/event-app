@@ -30,7 +30,7 @@ class _ClientScreenState extends State<ClientScreen> {
       ),
       body: FutureBuilder(
         future: generateUID(),
-        builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> userRef) {
+        builder: (BuildContext context, AsyncSnapshot<Stream<DocumentSnapshot<Map<String, dynamic>>>> userRef) {
           return userRef.data == null ? Center(child: CircularProgressIndicator()) : SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Padding(
@@ -39,7 +39,16 @@ class _ClientScreenState extends State<ClientScreen> {
                 children: [
                   actionRow(),
                   SizedBox(height: 10),
-                  eventList(userRef.data!)
+                  StreamBuilder(stream: userRef.data, builder: (context, snapshot) {
+                    return snapshot.connectionState == ConnectionState.waiting ?
+                        Center(
+                          child: Container(
+                            height: 50,
+                            width: 50,
+                            child: CircularProgressIndicator(),
+                          ),
+                        ) : eventList(snapshot.data!);
+                  })
                 ],
               ),
             ),
@@ -62,7 +71,7 @@ class _ClientScreenState extends State<ClientScreen> {
       });
     }
 
-    return snapshot;
+    return docRef.snapshots();
   }
 
   actionRow() {
