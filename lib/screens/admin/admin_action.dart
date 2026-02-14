@@ -19,9 +19,18 @@ class AdminAction extends StatefulWidget {
 
 class _AdminActionState extends State<AdminAction> {
 
+  Timer? timer;
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
@@ -81,7 +90,7 @@ class _AdminActionState extends State<AdminAction> {
                                   // Handle Poll Completion
                                 }
 
-                                Timer(Duration(seconds: 1), () {
+                                timer = Timer(Duration(seconds: 1), () {
                                   setState(() {
                                     timeDisplay--;
                                   });
@@ -176,6 +185,8 @@ class _AdminActionState extends State<AdminAction> {
 
 
     } else {
+
+      timer?.cancel();
 
       await widget.eventRef!.update({
         'activeAction' : ""
