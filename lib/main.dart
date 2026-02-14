@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'DM Sans',
         useMaterial3: true,
       ),
-      home: ClientScreen(),
+      home: AdminScreen(),
     );
   }
 }

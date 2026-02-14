@@ -129,7 +129,7 @@ class _AdminScreenState extends State<AdminScreen> {
                         itemBuilder: (context, i) {
 
                           return ListTile(
-                            title: Text(snapshot.data!.docs[i].get('eventName'), style: TextStyle(fontSize: 16)),
+                            title: Text(snapshot.data!.docs[i].get('eventName'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                             subtitle: Text("Status: ${snapshot.data!.docs[i].get('status')}"),
                             trailing: IconButton(onPressed: () async {
                               loadingWidget(context);

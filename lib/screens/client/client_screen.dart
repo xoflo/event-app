@@ -199,7 +199,7 @@ class _ClientScreenState extends State<ClientScreen> {
             ),
           ) : Column(
             children: [
-              Text("Poll: ${action.data!.get('actionName')}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: inverseColor)),
+              Text("Poll: ${action.data!.get('actionName')}", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700, color: inverseColor)),
               SizedBox(height: 10),
               Text("Time Remaining", style: TextStyle(fontSize: 15)),
                StatefulBuilder(
