@@ -20,7 +20,13 @@ class ClientScreen extends StatefulWidget {
 
 class _ClientScreenState extends State<ClientScreen> {
 
+  Timer? timer;
 
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -212,6 +218,17 @@ class _ClientScreenState extends State<ClientScreen> {
                     future: getNetworkTime(),
                     builder: (BuildContext context,
                         AsyncSnapshot<DateTime> utcTime) {
+
+                      if (utcTime.connectionState == ConnectionState.waiting) {
+                        return Text("00:00:00",
+                            style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700));
+                      }
+
+                      if (!utcTime.hasData || utcTime.data == null) {
+                        return Text("00:00:00",
+                            style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700));
+                      }
+
                       if (action.data!.get('status') == "Ongoing") {
                         final startTime = action.data!.get('startTime');
                         final differenceInSeconds = utcTime.data!
@@ -225,7 +242,7 @@ class _ClientScreenState extends State<ClientScreen> {
                           // Handle Poll Completion
                         }
 
-                        Timer(Duration(seconds: 1), () {
+                        timer = Timer(Duration(seconds: 1), () {
                           setState(() {
                             timeDisplay--;
                           });
