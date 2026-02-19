@@ -173,13 +173,14 @@ tappableCard(
           child: Card(
             color: color,
             child: Container(
-              padding: EdgeInsets.all(20),
+              padding: EdgeInsets.all(10),
               height: 100,
               width: 250,
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(icon, color: backgroundColor, size: 50),
-                  SizedBox(width: 10),
+                  Icon(icon, color: backgroundColor, size: 60),
+                  SizedBox(width: 20),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,

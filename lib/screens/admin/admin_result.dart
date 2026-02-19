@@ -63,6 +63,18 @@ class _AdminResultState extends State<AdminResult> {
                     future: getNetworkTime(),
                     builder: (BuildContext context,
                         AsyncSnapshot<DateTime> utcTime) {
+
+
+                      if (utcTime.connectionState == ConnectionState.waiting) {
+                        return Text("00:00:00",
+                            style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700));
+                      }
+
+                      if (!utcTime.hasData || utcTime.data == null) {
+                        return Text("00:00:00",
+                            style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700));
+                      }
+
                       if (snapshot.data['status'] == "Ongoing") {
                         final startTime = snapshot.data['startTime'];
                         final differenceInSeconds = utcTime.data!
@@ -88,7 +100,7 @@ class _AdminResultState extends State<AdminResult> {
                               height: 10,
                               width: 50,
                               child: LinearProgressIndicator())
-                          : Text("${secondsToDisplay(timeDisplay)}",
+                          : Text(snapshot.data['status'] == "Complete" ? "Voting Complete" : "${secondsToDisplay(timeDisplay)}",
                               style: TextStyle(
                                   fontSize: 40, fontWeight: FontWeight.w700));
                     });

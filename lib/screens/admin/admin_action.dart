@@ -99,7 +99,7 @@ class _AdminActionState extends State<AdminAction> {
                                     differenceInSeconds;
 
                                 if (timeDisplay <= 0) {
-                                  widget.actionRef!.update({'status': "Completed"});
+                                  widget.actionRef!.update({'status': "Complete"});
                                   widget.eventRef!.update({'activeAction' : ""});
                                   timer?.cancel();
 
@@ -121,7 +121,7 @@ class _AdminActionState extends State<AdminAction> {
                                   child: Text("00:00:00",
                                       style: TextStyle(
                                           fontSize: 40, fontWeight: FontWeight.w700)))
-                                  : Text(snapshot.data['status'] == "Completed" ? "00:00:00" : "${secondsToDisplay(timeDisplay)}",
+                                  : Text(snapshot.data['status'] == "Complete" ? "00:00:00" : "${secondsToDisplay(timeDisplay)}",
                                   style: TextStyle(
                                       fontSize: 40, fontWeight: FontWeight.w700));
                             });
@@ -154,8 +154,8 @@ class _AdminActionState extends State<AdminAction> {
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 5,
           children: [
-            status == "Completed" ? tappableCard('Reset Vote', "Restart Time", Icons.restart_alt, resetAction) :
-            status == "Ongoing" ? tappableCard("Pause Action", "Pause voting", Icons.pause, startAction) : tappableCard("Start Action", "Open voting", Icons.play_arrow, startAction),
+            status == "Complete" ? tappableCard('Reset Vote', "Restart Time", Icons.restart_alt, resetAction) :
+            status == "Ongoing" ? tappableCard("Pause Action", "Pause voting", Icons.pause,  startAction) : tappableCard("Start Action", "Open voting", Icons.play_arrow, startAction),
             tappableCard("Live View", "See Results", Icons.pie_chart, () {
               Navigator.push(context, MaterialPageRoute(builder: (_) => AdminResult(
                 actionName: widget.actionName,
@@ -168,101 +168,118 @@ class _AdminActionState extends State<AdminAction> {
     );
   }
 
+  eventCompleteCondition() async {
+    return await widget.eventRef!.get().then((value) {
+      return value.get('status');
+    }) == "Complete";
+  }
+
   resetAction() async {
 
-    showDialog(context: context, builder: (_) => AlertDialog(
-      title: Text("Confirm"),
-      content: Container(
-        height: 100,
-        width: 200,
-        child: Column(
-          children: [
-            Icon(Icons.warning, size: 40),
-            SizedBox(height: 10),
-            Text("Reset Vote?", style: TextStyle(fontSize: 15), textAlign: TextAlign.center,),
-            Text("This action cannot be undone.", style: TextStyle(color: Colors.grey))
-          ],
+    if (await eventCompleteCondition()) {
+      snackBarWidget(context, "Event already complete");
+    } else {
+      showDialog(context: context, builder: (_) => AlertDialog(
+        title: Text("Confirm"),
+        content: Container(
+          height: 100,
+          width: 200,
+          child: Column(
+            children: [
+              Icon(Icons.warning, size: 40),
+              SizedBox(height: 10),
+              Text("Reset Vote?", style: TextStyle(fontSize: 15), textAlign: TextAlign.center,),
+              Text("This action cannot be undone.", style: TextStyle(color: Colors.grey))
+            ],
+          ),
         ),
-      ),
-      actions: [
-        TextButton(onPressed: () async {
-          await widget.actionRef!.update({
-            'status' : 'Preparing',
-            'durationInSeconds' : await widget.actionRef!.get().then((value) {
-              return value.get('durationTotal');
-            })
-          });
-        }, child: Text("Confirm"))
-      ],
+        actions: [
+          TextButton(onPressed: () async {
+            await widget.actionRef!.update({
+              'status' : 'Preparing',
+              'durationInSeconds' : await widget.actionRef!.get().then((value) {
+                return value.get('durationTotal');
+              })
+            });
+          }, child: Text("Confirm"))
+        ],
 
-    ));
+      ));
+    }
+
   }
 
 
   startAction() async {
 
+    if (eventCompleteCondition()) {
+      snackBarWidget(context, "Event already complete");
+      return;
+    } else {
 
-    late String status;
-    late String actionName;
+      late String status;
+      late String actionName;
 
-    await widget.actionRef!.get().then((value) {
-      status = value.get('status');
-      actionName = value.get('actionName');
-    });
+      await widget.actionRef!.get().then((value) {
+        status = value.get('status');
+        actionName = value.get('actionName');
+      });
 
-    loadingWidget(context);
+      loadingWidget(context);
 
-    if (status == "Preparing") {
+      if (status == "Preparing") {
 
-      if (await widget.eventRef!.get().then((value) {
-        return value.get('activeAction');
-      }) != "") {
+        if (await widget.eventRef!.get().then((value) {
+          return value.get('activeAction');
+        }) != "") {
+          Navigator.pop(context);
+          snackBarWidget(context, "There is a current action active.");
+          return;
+        }
+
+
+        await widget.actionRef!.update({
+          'startTime' : await getNetworkTime(),
+          'status' : "Ongoing"
+        });
+
+        await widget.eventRef!.update({
+          'activeAction' : actionName
+        });
+
         Navigator.pop(context);
-        snackBarWidget(context, "There is a current action active.");
-        return;
+
+
+      } else {
+
+        timer?.cancel();
+
+        await widget.eventRef!.update({
+          'activeAction' : ""
+        });
+
+        final Timestamp recentStartTime = await widget.actionRef!.get().then((value) {
+          return value.get('startTime');
+        });
+
+        final DateTime utcNow = await getNetworkTime();
+        final differenceInSeconds = utcNow.difference(recentStartTime.toDate()).inSeconds;
+
+        final duration = await widget.actionRef!.get().then((value) {
+          return value.get('durationInSeconds');
+        });
+
+        await widget.actionRef!.update({
+          'status' : "Preparing",
+          'durationInSeconds' : duration - differenceInSeconds
+        });
+
+        Navigator.pop(context);
+
       }
 
 
-      await widget.actionRef!.update({
-        'startTime' : await getNetworkTime(),
-        'status' : "Ongoing"
-      });
-
-      await widget.eventRef!.update({
-        'activeAction' : actionName
-      });
-
-      Navigator.pop(context);
-
-
-    } else {
-
-      timer?.cancel();
-
-      await widget.eventRef!.update({
-        'activeAction' : ""
-      });
-
-      final Timestamp recentStartTime = await widget.actionRef!.get().then((value) {
-        return value.get('startTime');
-      });
-
-      final DateTime utcNow = await getNetworkTime();
-      final differenceInSeconds = utcNow.difference(recentStartTime.toDate()).inSeconds;
-
-      final duration = await widget.actionRef!.get().then((value) {
-        return value.get('durationInSeconds');
-      });
-
-      await widget.actionRef!.update({
-        'status' : "Preparing",
-        'durationInSeconds' : duration - differenceInSeconds
-      });
-
-      Navigator.pop(context);
-
     }
-
 
 
   }
@@ -284,8 +301,12 @@ class _AdminActionState extends State<AdminAction> {
                     title: Text(snapshot.data['options.opt$i.name']),
                     subtitle: Text("Option ${i+1}"),
                     trailing: Text(snapshot.data['options.opt$i.votes'].toString(), style: TextStyle(fontSize: 20),),
-                    onTap: () {
-                      editOptionDialog(snapshot, i);
+                    onTap: () async {
+                      if (await eventCompleteCondition()) {
+                        snackBarWidget(context, "Event already complete");
+                      } else {
+                        editOptionDialog(snapshot, i);
+                      }
                     },
                   );
                 }),

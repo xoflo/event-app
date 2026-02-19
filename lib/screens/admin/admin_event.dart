@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:screenshot/screenshot.dart';
 
 import 'admin_action.dart';
@@ -64,6 +65,7 @@ class _EventScreenState extends State<EventScreen> {
                           children: [
                             tappableCard("Create Poll", "Let Participants Vote", Icons.poll, createPollDialog),
                             eventStatus == "Preparing" ? tappableCard("Start Event", "Allow Joining", Icons.play_arrow, startEvent) : tappableCard("Pause Event", "Halt Joining", Icons.pause, startEvent),
+                            eventStatus == "Ongoing" ? tappableCard("Scan QR", "Invite User", Icons.qr_code_scanner, scanQr) : SizedBox(),
                             tappableCard("End Event", "Save Event", Icons.flag, endEvent)
                           ],
                         ),
@@ -138,9 +140,12 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   scanQr() {
-    if (kIsWeb) {
+    final scanner = MobileScanner(
+      onDetect: (result) {
+        print(result.barcodes.first.rawValue);
+      },
+    );
 
-    }
   }
 
   startEvent() async {
