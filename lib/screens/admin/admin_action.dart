@@ -169,6 +169,7 @@ class _AdminActionState extends State<AdminAction> {
   }
 
   resetAction() async {
+
     showDialog(context: context, builder: (_) => AlertDialog(
       title: Text("Confirm"),
       content: Container(

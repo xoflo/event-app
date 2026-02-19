@@ -170,6 +170,7 @@ class _EventScreenState extends State<EventScreen> {
         'status' : "Complete"
       });
       Navigator.pop(context);
+      Navigator.pop(context);
     });
   }
 
