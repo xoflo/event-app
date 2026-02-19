@@ -79,6 +79,17 @@ class _AdminActionState extends State<AdminAction> {
                             future: getNetworkTime(),
                             builder: (BuildContext context,
                                 AsyncSnapshot<DateTime> utcTime) {
+
+                              if (utcTime.connectionState == ConnectionState.waiting) {
+                                return Text("00:00:00",
+                                    style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700));
+                              }
+
+                              if (!utcTime.hasData || utcTime.data == null) {
+                                return Text("00:00:00",
+                                    style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700));
+                              }
+
                               if (snapshot.data['status'] == "Ongoing") {
                                 final startTime = snapshot.data['startTime'];
                                 final differenceInSeconds = utcTime.data!
@@ -90,6 +101,7 @@ class _AdminActionState extends State<AdminAction> {
                                 if (timeDisplay <= 0) {
                                   widget.actionRef!.update({'status': "Completed"});
                                   widget.eventRef!.update({'activeAction' : ""});
+                                  timer?.cancel();
 
                                   setState(() {});
                                 }
@@ -157,12 +169,32 @@ class _AdminActionState extends State<AdminAction> {
   }
 
   resetAction() async {
-    await widget.actionRef!.update({
-      'status' : 'Preparing',
-      'durationInSeconds' : await widget.actionRef!.get().then((value) {
-        return value.get('durationTotal');
-      })
-    });
+    showDialog(context: context, builder: (_) => AlertDialog(
+      title: Text("Confirm"),
+      content: Container(
+        height: 100,
+        width: 200,
+        child: Column(
+          children: [
+            Icon(Icons.warning, size: 40),
+            SizedBox(height: 10),
+            Text("Reset Vote?", style: TextStyle(fontSize: 15), textAlign: TextAlign.center,),
+            Text("This action cannot be undone.", style: TextStyle(color: Colors.grey))
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () async {
+          await widget.actionRef!.update({
+            'status' : 'Preparing',
+            'durationInSeconds' : await widget.actionRef!.get().then((value) {
+              return value.get('durationTotal');
+            })
+          });
+        }, child: Text("Confirm"))
+      ],
+
+    ));
   }
 
 
