@@ -11,15 +11,13 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
-
-  await Hive.initFlutter();
-  await Hive.openBox('deviceBox');
-
   await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform
   );
+  await Hive.initFlutter();
+  await Hive.openBox('deviceBox');
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
 
 }
 

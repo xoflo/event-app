@@ -66,7 +66,9 @@ class _AdminActionState extends State<AdminAction> {
                     builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
 
                       return snapshot.connectionState == ConnectionState.waiting
-                          ? SizedBox()
+                          ? Text("00:00:00",
+                          style: TextStyle(
+                              fontSize: 40, fontWeight: FontWeight.w700))
                           : StatefulBuilder(builder: (BuildContext context,
                           void Function(void Function()) setState) {
 
@@ -87,7 +89,9 @@ class _AdminActionState extends State<AdminAction> {
 
                                 if (timeDisplay <= 0) {
                                   widget.actionRef!.update({'status': "Completed"});
-                                  // Handle Poll Completion
+                                  widget.eventRef!.update({'activeAction' : ""});
+
+                                  setState(() {});
                                 }
 
                                 timer = Timer(Duration(seconds: 1), () {
@@ -97,12 +101,15 @@ class _AdminActionState extends State<AdminAction> {
                                 });
                               }
 
+
                               return snapshot.connectionState == ConnectionState.waiting
                                   ? Container(
                                   height: 10,
                                   width: 50,
-                                  child: LinearProgressIndicator())
-                                  : Text("${secondsToDisplay(timeDisplay)}",
+                                  child: Text("00:00:00",
+                                      style: TextStyle(
+                                          fontSize: 40, fontWeight: FontWeight.w700)))
+                                  : Text(snapshot.data['status'] == "Completed" ? "00:00:00" : "${secondsToDisplay(timeDisplay)}",
                                   style: TextStyle(
                                       fontSize: 40, fontWeight: FontWeight.w700));
                             });
@@ -135,6 +142,7 @@ class _AdminActionState extends State<AdminAction> {
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 5,
           children: [
+            status == "Completed" ? tappableCard('Reset Vote', "Restart Time", Icons.restart_alt, resetAction) :
             status == "Ongoing" ? tappableCard("Pause Action", "Pause voting", Icons.pause, startAction) : tappableCard("Start Action", "Open voting", Icons.play_arrow, startAction),
             tappableCard("Live View", "See Results", Icons.pie_chart, () {
               Navigator.push(context, MaterialPageRoute(builder: (_) => AdminResult(
@@ -147,6 +155,16 @@ class _AdminActionState extends State<AdminAction> {
       ),
     );
   }
+
+  resetAction() async {
+    await widget.actionRef!.update({
+      'status' : 'Preparing',
+      'durationInSeconds' : await widget.actionRef!.get().then((value) {
+        return value.get('durationTotal');
+      })
+    });
+  }
+
 
   startAction() async {
 

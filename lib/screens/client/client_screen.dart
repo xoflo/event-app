@@ -258,7 +258,7 @@ class _ClientScreenState extends State<ClientScreen> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
-                            height: 160,
+                            height: 140,
                             child: Builder(
                                 builder: (context) {
                                   return finalChoice != "" ? Column(
@@ -321,6 +321,9 @@ class _ClientScreenState extends State<ClientScreen> {
                                             Navigator.pop(context);
 
 
+                                            await action.data!.reference.update({
+                                              'options.opt${index.first}.votes' : FieldValue.increment(1)
+                                            });
 
                                             await userRef.reference.update({
                                               'voteStatus' : options['opt${index.first}']['name'].toString()
