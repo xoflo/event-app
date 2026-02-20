@@ -195,10 +195,12 @@ class _ClientScreenState extends State<ClientScreen> {
     }
 
     if (i == 2) {
+      final recentAction = userRef.get('recentAction');
+      final activeAction = event.get('activeAction');
 
-      if (userRef.get('recentAction') != event.get('activeAction')) {
+      if (recentAction != activeAction) {
         userRef.reference.update({
-          'recentAction' : event.get('activeAction'),
+          'recentAction' : activeAction,
           'voteStatus' : ""
         });
 
@@ -249,9 +251,12 @@ class _ClientScreenState extends State<ClientScreen> {
                         timeDisplay = action.data!.get('durationInSeconds') -
                             differenceInSeconds;
 
-                        if (timeDisplay <= 0) {
+                        if (timeDisplay <= 0 && action.data!.get('status') == "Ongoing") {
                           action.data!.reference.update({'status': "Completed"});
-                          // Handle Poll Completion
+                          event.reference.update({'activeAction' : ""});
+                          timer?.cancel();
+
+                          setState((){});
                         }
 
                         timer = Timer(Duration(seconds: 1), () {

@@ -98,7 +98,7 @@ class _AdminActionState extends State<AdminAction> {
                                 timeDisplay = snapshot.data['durationInSeconds'] -
                                     differenceInSeconds;
 
-                                if (timeDisplay <= 0) {
+                                if (timeDisplay <= 0 && snapshot.data['status'] == "Ongoing") {
                                   widget.actionRef!.update({'status': "Complete"});
                                   widget.eventRef!.update({'activeAction' : ""});
                                   timer?.cancel();

@@ -21,6 +21,15 @@ class _AdminResultState extends State<AdminResult> {
   int selectedIndex = 0;
   ValueNotifier<int> chartType = ValueNotifier<int>(0);
 
+
+  Timer? timer;
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,12 +81,15 @@ class _AdminResultState extends State<AdminResult> {
                         timeDisplay = snapshot.data['durationInSeconds'] -
                             differenceInSeconds;
 
-                        if (timeDisplay <= 0) {
-                          widget.actionRef!.update({'status': "Completed"});
-                          // Handle Poll Completion
+                        if (timeDisplay <= 0 && snapshot.data['status'] == "Ongoing") {
+                          widget.actionRef!.update({'status': "Complete"});
+                          widget.eventRef!.update({'activeAction' : ""});
+                          timer?.cancel();
+
+                          setState(() {});
                         }
 
-                        Timer(Duration(seconds: 1), () {
+                        timer = Timer(Duration(seconds: 1), () {
                           setState(() {
                             timeDisplay--;
                           });
