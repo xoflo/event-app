@@ -76,6 +76,7 @@ class _ClientScreenState extends State<ClientScreen> {
       await docRef.set({
         'uid': deviceId,
         'activeEvent' : "",
+        'recentAction' : "",
         'voteStatus' : ""
       });
     }
@@ -194,6 +195,17 @@ class _ClientScreenState extends State<ClientScreen> {
     }
 
     if (i == 2) {
+
+      if (userRef.get('recentAction') != event.get('activeAction')) {
+        userRef.reference.update({
+          'recentAction' : event.get('activeAction'),
+          'voteStatus' : ""
+        });
+
+      }
+
+
+
       return StreamBuilder(
         stream: eventsCollection.doc(event.get('eventName')).collection('actions').doc(event.get('activeAction')).snapshots(),
         builder: (context, action) {

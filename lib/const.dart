@@ -93,7 +93,6 @@ String secondsToDisplay(int? seconds) {
 
 
 
-
 // Widgets
 
 confirmDialog(BuildContext context, String content, void Function() onConfirm) {

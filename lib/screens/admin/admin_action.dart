@@ -160,6 +160,7 @@ class _AdminActionState extends State<AdminAction> {
               Navigator.push(context, MaterialPageRoute(builder: (_) => AdminResult(
                 actionName: widget.actionName,
                 actionRef: widget.actionRef,
+                eventRef: widget.eventRef,
               )));
             })
           ],
