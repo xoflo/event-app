@@ -101,7 +101,7 @@ class _AdminResultState extends State<AdminResult> {
                               height: 10,
                               width: 50,
                               child: LinearProgressIndicator())
-                          : Text(secondsToDisplay(timeDisplay),
+                          : Text(snapshot.data['status'] == "Complete" ? "Voting Complete" : secondsToDisplay(timeDisplay),
                               style: TextStyle(
                                 overflow: TextOverflow.ellipsis,
                                   fontSize: 40, fontWeight: FontWeight.w700));

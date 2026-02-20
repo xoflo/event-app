@@ -142,7 +142,7 @@ class _EventScreenState extends State<EventScreen> {
   scanQr() {
     try {
 
-      final scanner = MobileScanner(
+      MobileScanner(
         onDetect: (result) {
           print(result.barcodes.first.rawValue);
         },
