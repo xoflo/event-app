@@ -191,7 +191,13 @@ class _ClientScreenState extends State<ClientScreen> {
       return Container(
           height: 250,
           child: Center(
-              child: Text("No Activity at the moment")));
+              child: Column(
+                children: [
+
+                  SizedBox(height: 10),
+                  Text("No activity\nat the moment", textAlign: TextAlign.center, style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.grey)),
+                ],
+              )));
     }
 
     if (i == 2) {
@@ -271,14 +277,16 @@ class _ClientScreenState extends State<ClientScreen> {
                           height: 10,
                           width: 50,
                           child: LinearProgressIndicator())
-                          : Text("${secondsToDisplay(timeDisplay)}",
+                          : Text(action.data!.get('status') == "Complete" ? "00:00:00" : "${secondsToDisplay(timeDisplay)}",
                           style: TextStyle(
                               fontSize: 30, fontWeight: FontWeight.w700));
                     });
               }),
 
               SizedBox(height: 10),
-              Builder(
+              action.data!.get('status') == "Complete" ? Center(
+                child: Text("Voting Complete", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: Colors.green)),
+              ) : Builder(
                 builder: (context) {
 
 
