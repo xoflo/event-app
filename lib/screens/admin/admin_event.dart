@@ -140,11 +140,16 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   scanQr() {
-    final scanner = MobileScanner(
-      onDetect: (result) {
-        print(result.barcodes.first.rawValue);
-      },
-    );
+    try {
+
+      final scanner = MobileScanner(
+        onDetect: (result) {
+          print(result.barcodes.first.rawValue);
+        },
+      );
+    } catch(e) {
+      print(e);
+    }
 
   }
 
