@@ -156,27 +156,66 @@ class _ClientScreenState extends State<ClientScreen> {
         width: 400,
         child: Padding(
             padding: EdgeInsets.all(20),
-                child: StreamBuilder(
-                  stream: eventsCollection.doc(userRef.get('activeEvent')).snapshots(),
-                  builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> snapshot) {
-                    return snapshot.connectionState == ConnectionState.waiting ? Center(
-                      child: Container(
-                        height: 50,
-                        width: 50,
-                        child: CircularProgressIndicator(),
+            child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+              stream: eventsCollection
+                  .doc(userRef.get('activeEvent'))
+                  .snapshots(),
+              builder: (context, snapshot) {
+
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: SizedBox(
+                      height: 50,
+                      width: 50,
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                final data = snapshot.data!.data();
+
+                if (data == null) {
+                  return const Center(child: Text("Event not found"));
+                }
+
+                return Column(
+                  children: [
+                    Text(
+                      data['eventName'],
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w700,
+                        color: inverseColor,
                       ),
-                    ) : Column(
-                      children: [
-                        Text(snapshot.data!.get('eventName'), style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: inverseColor)),
-                        Text("Date: ${DateFormat.yMMMd().format(snapshot.data!.get('eventCreated').toDate()) }  |  Participants: ${snapshot.data!.get('participants')}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: inverseColor)),
-                        SizedBox(height: 10),
-                        Text("Current Activity", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: inverseColor)),
-                        SizedBox(height: 10),
-                        activityHandler(snapshot.data!.get('activeAction') == "" ? 1 : 2, snapshot.data!, userRef)
-                      ],
-                    );
-                  },
-                ),
+                    ),
+                    Text(
+                      "Date: ${DateFormat.yMMMd().format(data['eventCreated'].toDate())}"
+                          "  |  Participants: ${data['participants']}",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: inverseColor,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "Current Activity",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: inverseColor,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    activityHandler(
+                      data['activeAction'] == "" ? 1 : 2,
+                      snapshot.data!,
+                      userRef,
+                    ),
+                  ],
+                );
+              },
+            ),
 
 
         ),
