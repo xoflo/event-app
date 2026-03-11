@@ -1,4 +1,5 @@
 import 'package:barcode_widget/barcode_widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:event_app/const.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -154,6 +155,11 @@ class _EventScreenState extends State<EventScreen> {
                 await firebaseFirestore.collection('participants').doc(capture.raw).update({
                   'activeEvent': currentEvent
                 });
+
+                await eventsCollection.doc(currentEvent).update({
+                  'participants' : FieldValue.increment(1)
+                });
+
 
                 list.add(capture.raw);
               } else {
