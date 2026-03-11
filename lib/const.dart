@@ -141,8 +141,8 @@ loadingWidget(BuildContext context) {
   )));
 }
 
-snackBarWidget(BuildContext context, String content) {
-  return ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(content)));
+snackBarWidget(BuildContext context, String content, [Color? color]) {
+  return ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: color, content: Text(content)));
 }
 
 

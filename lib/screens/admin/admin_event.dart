@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:screenshot/screenshot.dart';
+import 'package:qrcode_reader_web/qrcode_reader_web.dart';
+
 
 import 'admin_action.dart';
 
@@ -20,6 +21,7 @@ class EventScreen extends StatefulWidget {
 
 class _EventScreenState extends State<EventScreen> {
 
+  String? currentEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +45,7 @@ class _EventScreenState extends State<EventScreen> {
           } else {
             String? eventStatus = snapshot.data['status'];
 
+            currentEvent = snapshot.data['eventName'];
 
             return Padding(
               padding: EdgeInsets.all(20.0),
@@ -140,13 +143,30 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   scanQr() {
-    try {
+    List<String> list = [];
 
-      MobileScanner(
-        onDetect: (result) {
-          print(result.barcodes.first.rawValue);
-        },
-      );
+    try {
+      showDialog(context: context, builder: (_) => AlertDialog(
+        content: SafeArea(
+          child: QRCodeReaderTransparentWidget(
+            onDetect: (QRCodeCapture capture) async {
+              if (list.isEmpty) {
+                await firebaseFirestore.collection('participants').doc(capture.raw).update({
+                  'activeEvent': currentEvent
+                });
+
+                list.add(capture.raw);
+              } else {
+                snackBarWidget(context, "Participant Added", Colors.green);
+                Navigator.pop(context);
+              }
+
+            },
+            targetSize: 150,
+          ),
+        ),
+      ));
+
     } catch(e) {
       print(e);
     }
