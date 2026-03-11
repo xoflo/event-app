@@ -21,7 +21,7 @@ class _AdminScreenState extends State<AdminScreen> {
       appBar: AppBar(
         backgroundColor: secondaryColor,
         centerTitle: true,
-        title: Text("Event Administrator1", style: TextStyle(color: inverseColor, fontWeight: FontWeight.w800, fontSize: 24)),
+        title: Text("Event Administrator", style: TextStyle(color: inverseColor, fontWeight: FontWeight.w800, fontSize: 24)),
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
