@@ -147,30 +147,26 @@ class _EventScreenState extends State<EventScreen> {
     List<String> list = [];
 
     try {
-      showDialog(context: context, builder: (_) => AlertDialog(
-        content: SafeArea(
-          child: QRCodeReaderTransparentWidget(
-            onDetect: (QRCodeCapture capture) async {
-              if (list.isEmpty) {
-                await firebaseFirestore.collection('participants').doc(capture.raw).update({
-                  'activeEvent': currentEvent
-                });
+      showDialog(context: context, builder: (_) => QRCodeReaderTransparentWidget(
+        onDetect: (QRCodeCapture capture) async {
+          if (list.isEmpty) {
+            await firebaseFirestore.collection('participants').doc(capture.raw).update({
+              'activeEvent': currentEvent
+            });
 
-                await eventsCollection.doc(currentEvent).update({
-                  'participants' : FieldValue.increment(1)
-                });
+            await eventsCollection.doc(currentEvent).update({
+              'participants' : FieldValue.increment(1)
+            });
 
 
-                list.add(capture.raw);
-              } else {
-                snackBarWidget(context, "Participant Added", Colors.green);
-                Navigator.pop(context);
-              }
+            list.add(capture.raw);
+          } else {
+            snackBarWidget(context, "Participant Added", Colors.green);
+            Navigator.pop(context);
+          }
 
-            },
-            targetSize: 150,
-          ),
-        ),
+        },
+        targetSize: 150,
       ));
 
     } catch(e) {
