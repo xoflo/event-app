@@ -289,12 +289,12 @@ class _ClientScreenState extends State<ClientScreen> {
 
                       if (utcTime.connectionState == ConnectionState.waiting) {
                         return Text("00:00:00",
-                            style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700));
+                            style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700));
                       }
 
                       if (!utcTime.hasData || utcTime.data == null) {
                         return Text("00:00:00",
-                            style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700));
+                            style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700));
                       }
 
                       if (action.data!.get('status') == "Ongoing") {

@@ -319,7 +319,7 @@ class _EventScreenState extends State<EventScreen> {
 
           final optionMap = optionMapper(options);
 
-          await eventsCollection.doc(widget.eventDoc).collection('actions').add({
+          await eventsCollection.doc(widget.eventDoc).collection('actions').doc(pollName.text).set({
             'actionName' : pollName.text,
             'durationInSeconds' : totalSeconds,
             'durationTotal' : totalSeconds,

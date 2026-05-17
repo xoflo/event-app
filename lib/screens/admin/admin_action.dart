@@ -169,10 +169,17 @@ class _AdminActionState extends State<AdminAction> {
     );
   }
 
-  eventCompleteCondition() async {
-    return await widget.eventRef!.get().then((value) {
+  Future<bool> eventCompleteCondition() async {
+    final result = await widget.eventRef!.get().then((value) {
       return value.get('status');
-    }) == "Complete";
+    });
+
+    if (result == "Complete") {
+      return true;
+    } else {
+      return false;
+    }
+
   }
 
   resetAction() async {
@@ -213,7 +220,7 @@ class _AdminActionState extends State<AdminAction> {
 
   startAction() async {
 
-    if (eventCompleteCondition()) {
+    if (await eventCompleteCondition()) {
       snackBarWidget(context, "Event already complete");
       return;
     } else {
