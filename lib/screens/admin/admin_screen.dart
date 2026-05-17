@@ -19,9 +19,9 @@ class _AdminScreenState extends State<AdminScreen> {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: secondaryColor,
+        backgroundColor: primaryColor,
         centerTitle: true,
-        title: Text("Event Administrator", style: TextStyle(color: inverseColor, fontWeight: FontWeight.w800, fontSize: 24)),
+        title: Text("Davao Del Sur State College Polling System", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 24)),
       ),
       body: Stack(
         children: [

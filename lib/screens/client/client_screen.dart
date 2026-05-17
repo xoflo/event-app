@@ -34,7 +34,7 @@ class _ClientScreenState extends State<ClientScreen> {
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: primaryColor,
-        title: Text("Event App", style: TextStyle(color: backgroundColor, fontWeight: FontWeight.w800, fontSize: 24)),
+        title: Text("Davao Del Sur State College Poll System", style: TextStyle(color: backgroundColor, fontWeight: FontWeight.w800, fontSize: 24)),
       ),
       body: Stack(
         children: [
