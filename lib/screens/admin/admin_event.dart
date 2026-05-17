@@ -150,6 +150,8 @@ class _EventScreenState extends State<EventScreen> {
       showDialog(context: context, builder: (_) => QRCodeReaderTransparentWidget(
         onDetect: (QRCodeCapture capture) async {
           if (list.isEmpty) {
+            list.add(capture.raw);
+
             await firebaseFirestore.collection('participants').doc(capture.raw).update({
               'activeEvent': currentEvent
             });
@@ -159,7 +161,6 @@ class _EventScreenState extends State<EventScreen> {
             });
 
 
-            list.add(capture.raw);
           } else {
             snackBarWidget(context, "Participant Added", Colors.green);
             Navigator.pop(context);
@@ -308,6 +309,11 @@ class _EventScreenState extends State<EventScreen> {
       ),
       actions: [
         TextButton(onPressed: () async {
+
+          if (options.length < 1) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Options must be more than 1")));
+            return;
+          }
 
           final hoursInSeconds = int.parse(hours.text.isEmpty ? "0" : hours.text);
           final minutesInSeconds = int.parse(minutes.text.isEmpty ? "0" : minutes.text);

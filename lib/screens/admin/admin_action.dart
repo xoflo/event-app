@@ -209,6 +209,8 @@ class _AdminActionState extends State<AdminAction> {
                 return value.get('durationTotal');
               })
             });
+
+            Navigator.pop(context);
           }, child: Text("Confirm"))
         ],
 
