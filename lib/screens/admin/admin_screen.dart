@@ -12,38 +12,50 @@ class AdminScreen extends StatefulWidget {
 }
 
 class _AdminScreenState extends State<AdminScreen> {
+
+  ValueNotifier<bool> verified = ValueNotifier(false);
+
   @override
-
-
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      appBar: AppBar(
-        backgroundColor: primaryColor,
-        centerTitle: true,
-        title: Text("Davao Del Sur State College Polling System", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 24)),
-      ),
-      body: Stack(
-        children: [
-          Center(
-            child: Opacity(
-              opacity: .2,
-                child: Image.asset('icon_transparent.png')),
-          ),
-          SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Padding(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  actions(),
-                  SizedBox(height: 15),
-                  eventList()
-                ],
+    return GestureDetector(
+      onTap: () async {
+        if (verified.value == false) {
+          if (await adminKeyCheck(false) == true) {
+            verified.value = true;
+          }
+        }
+      },
+      child: Scaffold(
+        backgroundColor: backgroundColor,
+        appBar: AppBar(
+          backgroundColor: primaryColor,
+          centerTitle: true,
+          title: Text("Davao Del Sur State College Polling System", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 24)),
+        ),
+        body: ValueListenableBuilder(valueListenable: verified, builder: (z, value, c) {
+          return value == false ? Center(child: Text("Tap to Verify Admin Access", style: TextStyle(fontSize: 30),)) : Stack(
+            children: [
+              Center(
+                child: Opacity(
+                    opacity: .2,
+                    child: Image.asset('icon_transparent.png')),
               ),
-            ),
-          )
-        ],
+              SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      actions(),
+                      SizedBox(height: 15),
+                      eventList()
+                    ],
+                  ),
+                ),
+              )
+            ],
+          );
+        }),
       ),
     );
   }
@@ -52,9 +64,14 @@ class _AdminScreenState extends State<AdminScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        addEventCard()
+        addEventCard(),
+        tappableCard('Change Key', "Change Admin Key", Icons.key, changeAdminKey)
       ],
     );
+  }
+
+  changeAdminKey() {
+    adminKeyCheck(true, i: 1);
   }
 
   addEventCard(){
@@ -142,8 +159,12 @@ class _AdminScreenState extends State<AdminScreen> {
                             title: Text(snapshot.data!.docs[i].get('eventName'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                             subtitle: Text("Status: ${snapshot.data!.docs[i].get('status')}"),
                             trailing: IconButton(onPressed: () async {
-                              await snapshot.data!.docs[i].reference.delete();
-                              snackBarWidget(context, "Event Deleted");
+
+                              if (await adminKeyCheck(true) == true) {
+                                await snapshot.data!.docs[i].reference.delete();
+                                snackBarWidget(context, "Event Deleted");
+                              }
+
                             }, icon: Icon(
                                 Icons.delete)),
                             onTap: () {
@@ -158,5 +179,63 @@ class _AdminScreenState extends State<AdminScreen> {
         ],
       ),
     );
+  }
+
+  Future<bool> adminKeyCheck(bool dismissible, {int? i}) async {
+    TextEditingController key = TextEditingController();
+    TextEditingController newKey = TextEditingController();
+    bool result = false;
+
+    await showDialog(
+        barrierDismissible: dismissible,
+        context: context, builder: (_) => AlertDialog(
+      title: Text("Admin Key"),
+      content: Container(
+        height: i != null ? 100 : 60,
+        width: 120,
+        child: Column(children: [
+          TextField(
+            controller: key,
+            decoration: InputDecoration(
+                hintText: 'Admin Key'
+            ),
+          ),
+          i != null ? TextField(
+            controller: newKey,
+            decoration: InputDecoration(
+                hintText: 'New Key'
+            ),
+          ) : SizedBox()
+        ],),
+      ),
+      actions: [
+        TextButton(onPressed: () async {
+          final adminUser = await firebaseFirestore.collection('participants').doc('admin').get();
+          final adminKey = adminUser.get('key');
+
+          if (adminKey == key.text) {
+            result = true;
+            Navigator.pop(context);
+
+            if (i != null) {
+              await firebaseFirestore.collection('participants').doc('admin').update({
+                'key': newKey.text
+              });
+
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Key Updated")));
+            }
+          } else {
+            result = false;
+            snackBarWidget(context, "Invalid Key");
+          }
+
+
+        }, child: Text("Submit"))
+      ],
+    ));
+
+    print("checkResult: $result");
+    return result;
+
   }
 }
