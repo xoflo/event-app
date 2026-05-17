@@ -240,6 +240,7 @@ class _ClientScreenState extends State<ClientScreen> {
           height: 250,
           child: Center(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
 
                   SizedBox(height: 10),
