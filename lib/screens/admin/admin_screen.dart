@@ -23,18 +23,27 @@ class _AdminScreenState extends State<AdminScreen> {
         centerTitle: true,
         title: Text("Event Administrator", style: TextStyle(color: inverseColor, fontWeight: FontWeight.w800, fontSize: 24)),
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            children: [
-              actions(),
-              SizedBox(height: 15),
-              eventList()
-            ],
+      body: Stack(
+        children: [
+          Center(
+            child: Opacity(
+              opacity: .2,
+                child: Image.asset('icon_transparent.png')),
           ),
-        ),
+          SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  actions(),
+                  SizedBox(height: 15),
+                  eventList()
+                ],
+              ),
+            ),
+          )
+        ],
       ),
     );
   }

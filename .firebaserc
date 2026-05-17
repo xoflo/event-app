@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "event-app-8cb66"
-  }
+  },
+  "targets": {
+    "event-app-8cb66": {
+      "hosting": {
+        "client": [
+          "event-client-8cb66"
+        ],
+        "main": [
+          "event-app-8cb66"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

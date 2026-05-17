@@ -5,16 +5,18 @@ class Event {
   DateTime? eventCreated;
   int? participants;
   String? status;
+  String? activeAction;
 
 
-  Event({this.eventName, this.eventCreated, this.participants, this.status});
+  Event({this.eventName, this.eventCreated, this.participants, this.status, this.activeAction});
 
   toFirebase() {
     return {
       'eventName' : eventName,
       'eventCreated' : eventCreated,
       'participants' : participants,
-      'status' : status
+      'status' : status,
+      'activeAction' : activeAction
     };
   }
 

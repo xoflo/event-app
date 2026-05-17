@@ -36,32 +36,41 @@ class _ClientScreenState extends State<ClientScreen> {
         backgroundColor: primaryColor,
         title: Text("Event App", style: TextStyle(color: backgroundColor, fontWeight: FontWeight.w800, fontSize: 24)),
       ),
-      body: FutureBuilder(
-        future: generateUID(1),
-        builder: (BuildContext context, AsyncSnapshot<Stream<DocumentSnapshot<Map<String, dynamic>>>> userRef) {
-          return userRef.data == null ? Center(child: CircularProgressIndicator()) : SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Padding(
-              padding: const EdgeInsets.all(30.0),
-              child: Column(
-                children: [
-                  actionRow(),
-                  SizedBox(height: 10),
-                  StreamBuilder(stream: userRef.data, builder: (context, snapshot) {
-                    return snapshot.connectionState == ConnectionState.waiting ?
-                        Center(
-                          child: Container(
-                            height: 50,
-                            width: 50,
-                            child: CircularProgressIndicator(),
-                          ),
-                        ) : eventList(snapshot.data!);
-                  })
-                ],
+      body: Stack(
+        children: [
+
+          Center(
+            child: Opacity(
+                opacity: .2,
+                child: Image.asset('icon_transparent.png')),
+          ),
+          FutureBuilder(
+          future: generateUID(1),
+          builder: (BuildContext context, AsyncSnapshot<Stream<DocumentSnapshot<Map<String, dynamic>>>> userRef) {
+            return userRef.data == null ? Center(child: CircularProgressIndicator()) : SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Padding(
+                padding: const EdgeInsets.all(30.0),
+                child: Column(
+                  children: [
+                    actionRow(),
+                    SizedBox(height: 10),
+                    StreamBuilder(stream: userRef.data, builder: (context, snapshot) {
+                      return snapshot.connectionState == ConnectionState.waiting ?
+                          Center(
+                            child: Container(
+                              height: 50,
+                              width: 50,
+                              child: CircularProgressIndicator(),
+                            ),
+                          ) : eventList(snapshot.data!);
+                    })
+                  ],
+                ),
               ),
-            ),
-          );
-        } ,
+            );
+          } ,
+        )],
       ),
     );
   }

@@ -35,18 +35,27 @@ class _AdminResultState extends State<AdminResult> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(
-              color: chartType.value == 0 ? primaryColor : secondaryColor,
-              onPressed: () {
-                chartType.value = 0;
-              },
-              icon: Icon(Icons.pie_chart)),
-          IconButton(
-              color: chartType.value == 1 ? primaryColor : secondaryColor,
-              onPressed: () {
-                chartType.value = 1;
-              },
-              icon: Icon(Icons.bar_chart)),
+          ValueListenableBuilder(
+            valueListenable: chartType, builder: (BuildContext context, value, Widget? child) {
+              return IconButton(
+                  color: value == 0 ? primaryColor : secondaryColor,
+                  onPressed: () {
+                    chartType.value = 0;
+                  },
+                  icon: Icon(Icons.pie_chart));
+          },
+          ),
+          ValueListenableBuilder(
+            valueListenable: chartType,
+            builder: (BuildContext context, int value, Widget? child) {
+              return IconButton(
+                  color: value == 1 ? primaryColor : secondaryColor,
+                  onPressed: () {
+                    chartType.value = 1;
+                  },
+                  icon: Icon(Icons.bar_chart));
+    },
+          ),
         ],
         title: Text(widget.actionName!),
       ),
