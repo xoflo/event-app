@@ -26,6 +26,7 @@ class Event {
     eventCreated = json['eventCreated'].toDate();
     participants = json['participants'];
     status = json['status'];
+    activeAction = json['activeAction'];
   }
 
 }

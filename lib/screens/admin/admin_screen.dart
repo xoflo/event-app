@@ -102,7 +102,8 @@ class _AdminScreenState extends State<AdminScreen> {
               eventName: eventName,
               eventCreated: DateTime.now(),
               participants: 0,
-              status: "Preparing"
+              status: "Preparing",
+              activeAction: ''
           ).toFirebase()
       );
       snackBarWidget(context, "Event Added");
