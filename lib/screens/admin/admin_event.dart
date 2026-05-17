@@ -331,7 +331,7 @@ class _EventScreenState extends State<EventScreen> {
       actions: [
         TextButton(onPressed: () async {
 
-          if (options.length < 1) {
+          if (options.length <= 1) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Options must be more than 1")));
             return;
           }
