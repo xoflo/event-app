@@ -306,7 +306,7 @@ class _ClientScreenState extends State<ClientScreen> {
                             differenceInSeconds;
 
                         if (timeDisplay <= 0 && action.data!.get('status') == "Ongoing") {
-                          action.data!.reference.update({'status': "Completed"});
+                          action.data!.reference.update({'status': "Complete"});
                           event.reference.update({'activeAction' : ""});
                           timer?.cancel();
 

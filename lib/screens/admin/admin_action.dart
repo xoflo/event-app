@@ -154,7 +154,7 @@ class _AdminActionState extends State<AdminAction> {
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 5,
           children: [
-            status == "Ongoing" ? tappableCard("Pause Action", "Pause voting", Icons.pause,  startAction) : tappableCard("Start Action", "Open voting", Icons.play_arrow, startAction),
+            status == 'Complete' ? SizedBox() : status == "Ongoing" ? tappableCard("Pause Action", "Pause voting", Icons.pause,  startAction) : tappableCard("Start Action", "Open voting", Icons.play_arrow, startAction),
             tappableCard("Live View", "See Results", Icons.pie_chart, () {
               Navigator.push(context, MaterialPageRoute(builder: (_) => AdminResult(
                 actionName: widget.actionName,

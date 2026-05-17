@@ -234,7 +234,6 @@ class _AdminScreenState extends State<AdminScreen> {
       ],
     ));
 
-    print("checkResult: $result");
     return result;
 
   }
