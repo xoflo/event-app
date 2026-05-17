@@ -318,6 +318,8 @@ class _ClientScreenState extends State<ClientScreen> {
                             timeDisplay--;
                           });
                         });
+
+
                       }
 
                       return action.connectionState == ConnectionState.waiting

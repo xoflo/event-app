@@ -139,41 +139,62 @@ class _EventScreenState extends State<EventScreen> {
     );
   }
 
-  actionDialog() {
-
-  }
 
   scanQr() {
-    List<String> list = [];
+    bool isProcessing = false;
 
-    try {
-      showDialog(context: context, builder: (_) => QRCodeReaderTransparentWidget(
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => QRCodeReaderTransparentWidget(
+        targetSize: 150,
         onDetect: (QRCodeCapture capture) async {
-          if (list.isEmpty) {
-            list.add(capture.raw);
+          if (isProcessing) return;
 
-            await firebaseFirestore.collection('participants').doc(capture.raw).update({
-              'activeEvent': currentEvent
+          isProcessing = true;
+
+          try {
+            final docRef = firebaseFirestore
+                .collection('participants')
+                .doc(capture.raw);
+
+            final doc = await docRef.get();
+
+            if (doc.exists && doc.get('activeEvent') == currentEvent) {
+              Navigator.of(dialogContext, rootNavigator: true).pop();
+
+              snackBarWidget(
+                context,
+                "Participant Already Joined",
+              );
+
+              return;
+            }
+
+            await docRef.update({
+              'activeEvent': currentEvent,
             });
 
             await eventsCollection.doc(currentEvent).update({
-              'participants' : FieldValue.increment(1)
+              'participants': FieldValue.increment(1),
             });
 
+            Navigator.of(dialogContext, rootNavigator: true).pop();
 
-          } else {
-            snackBarWidget(context, "Participant Added", Colors.green);
-            Navigator.pop(context);
+            snackBarWidget(
+              context,
+              "Participant Added",
+              Colors.green,
+            );
+          } catch (e) {
+            print(e);
+            snackBarWidget(context, "Error scanning QR");
           }
 
+          isProcessing = false;
         },
-        targetSize: 150,
-      ));
-
-    } catch(e) {
-      print(e);
-    }
-
+      ),
+    );
   }
 
   startEvent() async {
@@ -320,6 +341,16 @@ class _EventScreenState extends State<EventScreen> {
           final secondsInSeconds = int.parse(seconds.text.isEmpty ? "0" : seconds.text);
 
           final totalSeconds = hoursInSeconds * 3600 + minutesInSeconds * 60 + secondsInSeconds;
+
+          if (pollName.text.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Poll Name cannot be empty")));
+            return;
+          }
+
+          if (totalSeconds < 30) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Duration must be more than 30 seconds")));
+            return;
+          }
 
           loadingWidget(context);
 

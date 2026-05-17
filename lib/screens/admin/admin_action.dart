@@ -210,6 +210,17 @@ class _AdminActionState extends State<AdminAction> {
               })
             });
 
+            final data = await widget.actionRef!.get();
+
+            final dynamic options = data.get('options');
+
+            for (int i = 0; i < options.length; i++) {
+              await widget.actionRef!.update({
+                'options.opt$i.votes' : 0
+              });
+            }
+
+
             Navigator.pop(context);
           }, child: Text("Confirm"))
         ],
