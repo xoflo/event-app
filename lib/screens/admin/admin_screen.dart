@@ -33,7 +33,7 @@ class _AdminScreenState extends State<AdminScreen> {
           title: Text("Davao Del Sur State College Polling System", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 24)),
         ),
         body: ValueListenableBuilder(valueListenable: verified, builder: (z, value, c) {
-          return value == false ? Center(child: Text("Tap to Verify Admin Access", style: TextStyle(fontSize: 30),)) : Stack(
+          return value == false ? Center(child: Text("Tap to Verify Admin Access", textAlign: TextAlign.center, style: TextStyle(fontSize: 30),)) : Stack(
             children: [
               Center(
                 child: Opacity(
